@@ -13,7 +13,5 @@ void makePlayerDetails(
 void makeCoordinates(GtkWidget *coords);
 void makeArrows(GtkWidget *arrows);
 void makeControlButtonsArray(GtkWidget *buttonsArray);
-static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
-                           GtkWidget *data);
 
 #endif // include guard

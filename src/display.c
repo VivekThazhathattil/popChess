@@ -1,20 +1,29 @@
 #include "display.h"
 #include <stdio.h>
 
+static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
+                           GtkWidget *data);
+
 GtkWidget *displayControl() {
-  GtkWidget *canvas, *board, *pieces, *playerDetails, *coords, *arrows,
+  GtkWidget *canvas, *board, *pieces, *whitePlayerDetails, *blackPlayerDetails, *coords, *arrows,
       *buttonsArray;
   cairo_t *cr;
+
+  canvas = gtk_vbox_new(0, 0);
 
   board = gtk_drawing_area_new();
   gtk_widget_set_size_request(board, BOARD_SIZE_X, BOARD_SIZE_Y);
   makeBoard(board);
 
-  canvas = gtk_vbox_new(0, 0);
+    whitePlayerDetails = gtk_hbox_new(0,0);
+    blackPlayerDetails = gtk_hbox_new(0,0);
+  makePlayerDetails(whitePlayerDetails);
+  makePlayerDetails(blackPlayerDetails);
+  gtk_box_pack_end(GTK_BOX(canvas), whitePlayerDetails, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
+  gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
 
   makePieces(pieces);
-  makePlayerDetails(playerDetails);
   makeCoordinates(coords);
   makeArrows(arrows);
   makeControlButtonsArray(buttonsArray);
@@ -29,8 +38,14 @@ void makeBoard(GtkWidget *board) {
 void makePieces(GtkWidget *pieces) {}
 
 void makePlayerDetails(GtkWidget *playerDetails) {
-  GtkWidget *hbox, *whiteName, *whiteRating, *whiteTime, *blackName,
-      *blackRating, *blackTime;
+  GtkWidget *name, *rating, *time;
+    name = gtk_label_new("Name");
+    rating = gtk_label_new("Rating");
+    time = gtk_label_new("Time");
+
+    gtk_box_pack_start(GTK_BOX(playerDetails), name, 1, 1, 0);
+    gtk_box_pack_start(GTK_BOX(playerDetails), rating, 1, 1, 0);
+    gtk_box_pack_start(GTK_BOX(playerDetails), time, 1, 1, 0);
 }
 
 void makeCoordinates(GtkWidget *coords) {}
