@@ -1,6 +1,6 @@
 PROG_NAME := popChess
 CC ?= gcc
-SRC := ./src/main.c ./src/control.c ./src/display.c ./src/board.c
+SRC := ./src/main.c ./src/control.c ./src/display.c ./src/board.c ./src/get_feed.c
 OBJ_DIR := ./obj
 OBJ_FILES := ./obj/*.o
 #CFLAGS := -Wall -Wextra -Werror -std=c99 -pedantic 
@@ -13,7 +13,7 @@ endif
 ifeq ($(OS), Windows_NT)
 	CFLAGS += -mwindows
 endif
-LINK_FLAGS := $(shell pkg-config --libs gtk+-3.0)
+LINK_FLAGS := $(shell pkg-config --libs gtk+-3.0) -lcurl -pthread
 build:
 	$(CC) -g $(CFLAGS) -c $(SRC)
 	mkdir -p $(OBJ_DIR) && mv ./*.o $(OBJ_DIR)
@@ -24,3 +24,6 @@ build:
 clean:
 	rm -f $(PROG_NAME)
 	rm -rf $(OBJ_DIR)
+
+format:
+	clang-format -i */*.h */*.c

@@ -13,5 +13,6 @@
 int run(int argc, char *args[]);
 int setWindowProps(GtkWidget *win);
 void showWindow(GtkWidget *win);
+void triggerFENReceived(char *fenFeed);
 
 #endif // include guard
