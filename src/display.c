@@ -23,7 +23,10 @@ GtkWidget *displayControl() {
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
 
-  makePieces(pieces);
+    char piecesDir[] = "pieces/merida/w_q.svg";
+  makePieces(pieces, piecesDir);
+  gtk_box_pack_end(GTK_BOX(canvas), pieces, 1, 1, 0);
+
   makeCoordinates(coords);
   makeArrows(arrows);
   makeControlButtonsArray(buttonsArray);
@@ -35,7 +38,17 @@ void makeBoard(GtkWidget *board) {
   g_signal_connect(board, "draw", G_CALLBACK(draw_board), board);
 }
 
-void makePieces(GtkWidget *pieces) {}
+void makePieces(GtkWidget *pieces, char *piecesDir) {
+    GError *error = NULL;
+    GdkPixbuf *pix; 
+    if((pix = gdk_pixbuf_new_from_file_at_scale (piecesDir, 200, 200, TRUE, &error)) == NULL){
+        g_printerr ("Error loading file: #%d %s\n", error->code, error->message);
+        g_error_free (error);
+        exit (1);
+    }
+    pieces = gtk_image_new_from_pixbuf (pix);
+    
+}
 
 void makePlayerDetails(GtkWidget *playerDetails) {
   GtkWidget *name, *rating, *time;

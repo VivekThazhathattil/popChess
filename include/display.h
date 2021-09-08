@@ -7,7 +7,7 @@
 
 GtkWidget *displayControl();
 void makeBoard(GtkWidget *board);
-void makePieces(GtkWidget *pieces);
+void makePieces(GtkWidget *pieces, char *piecesDir);
 void makePlayerDetails(
     GtkWidget *playerDetails); // includes player names, ratings, clock
 void makeCoordinates(GtkWidget *coords);
