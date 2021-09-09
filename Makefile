@@ -1,6 +1,6 @@
 PROG_NAME := popChess
 CC ?= gcc
-SRC := ./src/main.c ./src/control.c ./src/display.c ./src/board.c ./src/get_feed.c
+SRC := ./src/main.c ./src/control.c ./src/display.c ./src/board.c ./src/get_feed.c ./src/parse_feed.c
 OBJ_DIR := ./obj
 OBJ_FILES := ./obj/*.o
 #CFLAGS := -Wall -Wextra -Werror -std=c99 -pedantic 

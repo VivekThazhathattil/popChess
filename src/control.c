@@ -24,8 +24,10 @@ int run(int argc, char *argv[]) {
 }
 
 void triggerFENReceived(char *fenFeed) {
-  printf("%s\n", fenFeed);
-  //  char *lastJSON = getLastJSON(fenFeed);
+  char *lastJSON = getLastJSON(fenFeed);
+  char* fen = getFenFromJson(lastJSON);
+  printf("%s\n", fen);
+  //free(fen);
   //  if(isNewGame(lastJSON)){
   //    latest_data = getNewGameData(lastJSON);
   //    updateCanvasDetails();
