@@ -32,11 +32,16 @@ void triggerFENReceived(char *fenFeed) {
     if (!fillGameInfo(&lichessData, lastJSON)) {
       printf("Error filling the game info\n");
     }
-        printf("TEST:\n");
-        printf("White name: %s, Black name: %s\n",lichessData.white.name, lichessData.black.name);
-        printf("White rating: %s, Black rating: %s\n",lichessData.white.rating, lichessData.black.rating);
-        printf("White title: %s, Black title: %s\n",lichessData.white.title, lichessData.black.title);
-    //  updateCanvasDetails();
+    printf("TEST:\n");
+    printf("White name: %s, Black name: %s\n", lichessData.white.name,
+           lichessData.black.name);
+    printf("White rating: %s, Black rating: %s\n", lichessData.white.rating,
+           lichessData.black.rating);
+    printf("White title: %s, Black title: %s\n", lichessData.white.title,
+           lichessData.black.title);
+
+    // bad practice: remove duplicates
+    updateAllLabelTexts(&lichessData);
   }
 
   //  else{

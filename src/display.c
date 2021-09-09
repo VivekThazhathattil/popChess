@@ -1,24 +1,42 @@
 #include "display.h"
 #include <stdio.h>
 
+GtkWidget *wNameWidget, *wRatingWidget, *wTimeWidget;
+GtkWidget *bNameWidget, *bRatingWidget, *bTimeWidget;
+
+void updateAllLabelTexts(lichess_data_t *liDat){
+  updateLabelTexts(wNameWidget, liDat->white.name);
+  updateLabelTexts(bNameWidget, liDat->black.name);
+  updateLabelTexts(wRatingWidget, liDat->white.rating);
+  updateLabelTexts(bRatingWidget, liDat->black.rating);
+}
 static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
                            GtkWidget *data);
 
 GtkWidget *displayControl() {
-  GtkWidget *canvas, *board, *pieces, *whitePlayerDetails, *blackPlayerDetails,
-      *coords, *arrows, *buttonsArray;
+  GtkWidget *canvas, *arrows, *buttonsArray, *coords, *board, *pieces,
+      *whitePlayerDetails, *blackPlayerDetails;
   cairo_t *cr;
 
   canvas = gtk_vbox_new(0, 0);
-
   board = gtk_drawing_area_new();
   gtk_widget_set_size_request(board, BOARD_SIZE_X, BOARD_SIZE_Y);
   makeBoard(board);
 
+  wNameWidget = gtk_label_new("-");
+  bNameWidget = gtk_label_new("-");
+  wRatingWidget = gtk_label_new("-");
+  bRatingWidget = gtk_label_new("-");
+  wTimeWidget = gtk_label_new("-");
+  bTimeWidget = gtk_label_new("-");
+
   whitePlayerDetails = gtk_hbox_new(0, 0);
   blackPlayerDetails = gtk_hbox_new(0, 0);
-  makePlayerDetails(whitePlayerDetails);
-  makePlayerDetails(blackPlayerDetails);
+
+  makePlayerDetails(whitePlayerDetails, wNameWidget, wRatingWidget, wTimeWidget,
+                    NULL, NULL, NULL);
+  makePlayerDetails(blackPlayerDetails, bNameWidget, bRatingWidget, bTimeWidget,
+                    NULL, NULL, NULL);
   gtk_box_pack_end(GTK_BOX(canvas), whitePlayerDetails, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
@@ -26,7 +44,6 @@ GtkWidget *displayControl() {
   char piecesDir[] = "pieces/merida/w_q.svg";
   makePieces(pieces, piecesDir);
   gtk_box_pack_end(GTK_BOX(canvas), pieces, 1, 1, 0);
-
   makeCoordinates(coords);
   makeArrows(arrows);
   makeControlButtonsArray(buttonsArray);
@@ -50,12 +67,18 @@ void makePieces(GtkWidget *pieces, char *piecesDir) {
   pieces = gtk_image_new_from_pixbuf(pix);
 }
 
-void makePlayerDetails(GtkWidget *playerDetails) {
-  GtkWidget *name, *rating, *time;
-  name = gtk_label_new("Name");
-  rating = gtk_label_new("Rating");
-  time = gtk_label_new("Time");
-
+void updateLabelTexts(GtkWidget* label, char* text){
+    gtk_label_set_text(GTK_LABEL(label), (text == NULL) ? "-" : text);
+}
+void makePlayerDetails(GtkWidget *playerDetails, GtkWidget *name,
+                       GtkWidget *rating, GtkWidget *time, char *nameStr,
+                       char *titleStr, char *ratingStr) {
+//  name = (nameStr == NULL) ? gtk_label_new("Name") : nameStr;
+//  rating = (ratingStr == NULL) ? gtk_label_new("Rating") : ratingStr;
+//  time = gtk_label_new("Time"); // TODO: fix this as well, along with ratingStr
+  updateLabelTexts(name, nameStr);
+  updateLabelTexts(rating, ratingStr);
+  updateLabelTexts(time, NULL);
   gtk_box_pack_start(GTK_BOX(playerDetails), name, 1, 1, 0);
   gtk_box_pack_start(GTK_BOX(playerDetails), rating, 1, 1, 0);
   gtk_box_pack_start(GTK_BOX(playerDetails), time, 1, 1, 0);

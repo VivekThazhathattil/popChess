@@ -26,8 +26,8 @@ valueToElement(struct json_object_element_s *a) {
   return json_value_as_object(a_value)->start;
 }
 
-static copyAllocateValues(char** key, struct json_object_element_s *value){
-  *key = (char *)malloc( sizeof(char) * strlen(getValueString(value)) + 1);
+static copyAllocateValues(char **key, struct json_object_element_s *value) {
+  *key = (char *)malloc(sizeof(char) * strlen(getValueString(value)) + 1);
   strcpy(*key, getValueString(value));
 }
 

@@ -6,12 +6,15 @@
 #include <gtk/gtk.h>
 
 GtkWidget *displayControl();
-void makeBoard(GtkWidget *board);
-void makePieces(GtkWidget *pieces, char *piecesDir);
-void makePlayerDetails(
-    GtkWidget *playerDetails); // includes player names, ratings, clock
-void makeCoordinates(GtkWidget *coords);
-void makeArrows(GtkWidget *arrows);
-void makeControlButtonsArray(GtkWidget *buttonsArray);
+void makeBoard(GtkWidget *);
+void makePieces(GtkWidget *, char *);
+void updateCanvas(GtkWidget *, char *, char *, char *, char *, char *, char *);
+void makePlayerDetails(GtkWidget *, GtkWidget *, GtkWidget *, GtkWidget *,
+                       char *, char *, char *);
+void makeCoordinates(GtkWidget *);
+void makeArrows(GtkWidget *);
+void makeControlButtonsArray(GtkWidget *);
+void updateAllLabelTexts(lichess_data_t*);
+void updateLabelTexts(GtkWidget* , char* );
 
 #endif // include guard
