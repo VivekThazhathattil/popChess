@@ -6,14 +6,14 @@ OBJ_FILES := ./obj/*.o
 #CFLAGS := -Wall -Wextra -Werror -std=c99 -pedantic 
 CFLAGS := -Wall -Wextra -std=c99 -pedantic \
           -DPROG_NAME=\"$(PROG_NAME)\" -Iinclude/
-CFLAGS += $(shell pkg-config --cflags gtk+-3.0)
+CFLAGS += $(shell pkg-config --cflags gtk+-3.0 librsvg-2.0)
 ifdef DEBUG
 	CFLAGS += -g
 endif
 ifeq ($(OS), Windows_NT)
 	CFLAGS += -mwindows
 endif
-LINK_FLAGS := $(shell pkg-config --libs gtk+-3.0) -lcurl -pthread
+LINK_FLAGS := $(shell pkg-config --libs gtk+-3.0 librsvg-2.0) -lcurl -pthread
 build:
 	$(CC) -g $(CFLAGS) -c $(SRC)
 	mkdir -p $(OBJ_DIR) && mv ./*.o $(OBJ_DIR)

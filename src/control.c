@@ -25,9 +25,6 @@ int run(int argc, char *argv[]) {
 
 void triggerFENReceived(char *fenFeed) {
   char *lastJSON = getLastJSON(fenFeed);
-  char *fen = getFenFromJson(lastJSON);
-  printf("%s\n", fen);
-
   if (isNewGame(lastJSON)) {
     if (!fillGameInfo(&lichessData, lastJSON)) {
       printf("Error filling the game info\n");
@@ -40,9 +37,18 @@ void triggerFENReceived(char *fenFeed) {
     printf("White title: %s, Black title: %s\n", lichessData.white.title,
            lichessData.black.title);
 
-    // bad practice: remove duplicates
     updateAllLabelTexts(&lichessData);
   }
+
+  char *fen = getFenFromJson(lastJSON);
+  piece_info_t pieceInfo[32];
+  getPiecePositions(fen, pieceInfo);
+  showPieces(pieceInfo);
+  printf("%s\n", fen);
+  //  printf("TEST:\n");
+  //  for(uint i = 0; i < pieceInfo[0].totalCount; ++i)
+  //    printf("%c,%d,%d,%d,%c\n", pieceInfo[i].type, pieceInfo[i].x,
+  //    pieceInfo[i].y, pieceInfo[i].id, pieceInfo[i].color);
 
   //  else{
   //    updateWithLatestData();

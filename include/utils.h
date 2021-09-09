@@ -20,4 +20,12 @@ struct LichessData {
 };
 typedef struct LichessData lichess_data_t;
 
+struct PieceInfo {
+  uint x, y;
+  uint id;
+  uint totalCount; // this is unnecessary, but convenient.
+  char type, color;
+};
+typedef struct PieceInfo piece_info_t;
+
 #endif // include guard
