@@ -11,7 +11,7 @@ struct _pair_t {
 typedef struct _pair_t sizes_t;
 
 struct PlayerAttributes {
-  char *name, title, rating, timeLeft;
+  char *name, *title, *rating, *timeLeft;
 };
 typedef struct PlayerAttributes player_attributes_t;
 

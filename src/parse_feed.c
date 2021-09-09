@@ -20,6 +20,17 @@ static char *getValueString(struct json_object_element_s *a) {
   return a_value_string->string;
 }
 
+static struct json_object_element_s *
+valueToElement(struct json_object_element_s *a) {
+  struct json_value_s *a_value = a->value;
+  return json_value_as_object(a_value)->start;
+}
+
+static copyAllocateValues(char** key, struct json_object_element_s *value){
+  *key = (char *)malloc( sizeof(char) * strlen(getValueString(value)) + 1);
+  strcpy(*key, getValueString(value));
+}
+
 char *getLastJSON(char *feed) {
   /*    get the pointer to the last character of the char string.
       Move backwards until return character is met of argument char pointer is
@@ -87,7 +98,44 @@ int isNewGame(char *unparsedJson) {
   return flag;
 }
 
-uint fillGameInfo(lichess_data_t *liData) {
+uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
   uint errFlag = 1;
+  struct json_value_s *root = json_parse(unparsedData, strlen(unparsedData));
+  struct json_object_element_s *a = initJsonObjElement(root);
+  a = valueToElement(
+      a->next);      // takes an element. returns its value as an element.
+  a = a->next->next; // id->orientation->players
+  struct json_array_s *array = json_value_as_array(a->value);
+  assert(array->length == 2);
+  struct json_array_element_s *firstArrayElement = array->start;
+  struct json_value_s *whiteInfo = firstArrayElement->value;
+  struct json_object_s *whiteData = (struct json_object_s *)whiteInfo->payload;
+  struct json_object_element_s *whiteColor, *whiteUser, *whiteRating,
+      *whiteUserName, *whiteUserTitle, *blackColor, *blackUser, *blackRating,
+      *blackUserName, *blackUserTitle;
+  whiteColor = whiteData->start;
+  whiteUser = whiteColor->next;
+  whiteRating = whiteUser->next;
+  whiteUserName = valueToElement(whiteUser);
+  whiteUserTitle = whiteUserName->next;
+  // TODO: get the clocktime from fen adjoint data
+
+  struct json_array_element_s *secondArrayElement = firstArrayElement->next;
+  struct json_value_s *blackInfo = secondArrayElement->value;
+  struct json_object_s *blackData =
+      (struct json_object_s *)(blackInfo)->payload;
+  blackColor = blackData->start;
+  blackUser = blackColor->next;
+  blackRating = blackUser->next;
+  blackUserName = valueToElement(blackUser);
+  blackUserTitle = blackUserName->next;
+
+  copyAllocateValues(&destData->white.name, whiteUserName);
+  copyAllocateValues(&destData->white.rating, whiteRating);
+  copyAllocateValues(&destData->white.title, whiteUserTitle);
+  copyAllocateValues(&destData->black.name, blackUserName);
+  copyAllocateValues(&destData->black.rating, blackRating);
+  copyAllocateValues(&destData->black.title, blackUserTitle);
+
   return errFlag;
 }
