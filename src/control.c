@@ -25,13 +25,17 @@ int run(int argc, char *argv[]) {
 
 void triggerFENReceived(char *fenFeed) {
   char *lastJSON = getLastJSON(fenFeed);
-  char* fen = getFenFromJson(lastJSON);
+  char *fen = getFenFromJson(lastJSON);
   printf("%s\n", fen);
-  //free(fen);
-  //  if(isNewGame(lastJSON)){
-  //    latest_data = getNewGameData(lastJSON);
-  //    updateCanvasDetails();
-  //  }
+  free(fen);
+
+  if (isNewGame(lastJSON)) {
+    if (!fillGameInfo(&lichessData)) {
+      printf("Error filling the game info\n");
+    }
+    //  updateCanvasDetails();
+  }
+
   //  else{
   //    updateWithLatestData();
   //    triggerPieceChange();
