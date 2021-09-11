@@ -1,3 +1,20 @@
+/*
+ *    This file is part of popChess.
+ *
+ *    popChess is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    popChess is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with popChess.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "display.h"
 #include <stdio.h>
 
@@ -53,8 +70,8 @@ GtkWidget *displayControl() {
   gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
 
   char piecesDir[] = "pieces/merida/w_q.svg";
-  makePieces(pieces, piecesDir);
-  gtk_box_pack_end(GTK_BOX(canvas), pieces, 1, 1, 0);
+  //makePieces(pieces, piecesDir);
+  //gtk_box_pack_end(GTK_BOX(canvas), pieces, 1, 1, 0);
   makeCoordinates(coords);
   makeArrows(arrows);
   makeControlButtonsArray(buttonsArray);
@@ -125,6 +142,7 @@ static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
     for (uint i = 0; i < pInf[0].totalCount; ++i) {
       cairo_scale(cr, scale, scale);
       cairo_move_to(cr, pInf[i].x * DEFAULT_SQUARE_SIZE, (7 - pInf[i].y) * DEFAULT_SQUARE_SIZE );
+      printf("PINF: %s, %s \n", pInf[i].color, pInf[i].type);
       piece_image = piece_images[(pInf[i].color == 'b' ? 0 : 1)][getPieceType(pInf[i].type)];
       rsvg_handle_render_cairo(piece_image, cr);
       cairo_move_to(cr, 0, 0);
