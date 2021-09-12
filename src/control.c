@@ -19,23 +19,27 @@
 
 lichess_data_t lichessData;
 
-int run(int argc, char *argv[]) {
+int run(GtkApplication *app, int argc, char *argv[]) {
   gtk_init(&argc, &argv);
   initCurl();
 
-  GtkWidget *window, *displayOutput; //*playerName, *playerRating, *playerClock;
+  GtkWidget *window; //*playerName, *playerRating, *playerClock;
+  display_output_t *display_output;
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  displayOutput = displayControl();
+  window = gtk_application_window_new(app);
+  display_output = displayControl();
 
   g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
 
-  gtk_container_add(GTK_CONTAINER(window), displayOutput);
+  gtk_container_add(GTK_CONTAINER(window), display_output->canvas);
   if (setWindowProps(window) != 1) {
     printf("Setting window props failed. Exiting...");
     exit(0);
   }
   showWindow(window);
+
+  freeBoardInfo(display_output->board_info);
+  freeDisplayOutput(display_output);
   destroyLichessData();
   return 1;
 }

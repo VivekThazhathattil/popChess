@@ -26,6 +26,17 @@
 #include <librsvg/rsvg-cairo.h>
 #endif
 
+typedef struct boardInfo{
+    GtkWidget *widget;
+    int fenActive;
+    piece_info_t *piece_info;
+} board_info_t;
+
+typedef struct displayOutput{
+    GtkWidget *canvas;
+    board_info_t *board_info;
+} display_output_t;
+
 GtkWidget *displayControl();
 void makeBoard(GtkWidget *);
 void makePieces(GtkWidget *, char *);
@@ -39,5 +50,7 @@ void updateAllLabelTexts(lichess_data_t *);
 void updateLabelTexts(GtkWidget *, char *);
 void load_svgs(char *, GError **);
 void showPieces(piece_info_t *);
+void freeBoardInfo(board_info_t*);
+void freeDisplayOutput(display_output_t*);
 
 #endif // include guard

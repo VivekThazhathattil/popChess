@@ -21,10 +21,21 @@
 // TODO: remove global vars; use a struct ptr;
 GtkWidget *wNameWidget, *wRatingWidget, *wTimeWidget;
 GtkWidget *bNameWidget, *bRatingWidget, *bTimeWidget;
-GtkWidget *boardRef;
 RsvgHandle *piece_images[2][6];
-uint fenActive;
-piece_info_t *pInf;
+piece_info_t *piece_info;
+board_info_t *board_info;
+static cairo_surface_t *surface = NULL;
+
+static void clearSurface(cairo_t *cr){
+  cairo_t *surface;
+  cr = cairo_create(surface);
+  cairo_set_source_rgb(cr, 1, 1, 1);
+  cairo_paint(cr);
+  cairo_destroy(cr);
+}
+
+static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
+                           board_info_t* data);
 
 // bad practice: remove duplicates
 void updateAllLabelTexts(lichess_data_t *liDat) {
@@ -33,22 +44,31 @@ void updateAllLabelTexts(lichess_data_t *liDat) {
   updateLabelTexts(wRatingWidget, liDat->white.rating);
   updateLabelTexts(bRatingWidget, liDat->black.rating);
 }
-static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
-                           GtkWidget *data);
+
+void freeBoardInfo(board_info_t *board_info){
+  free(board_info);
+}
+
+void freeDisplayOutput(display_output_t *output){
+  free(output);
+}
 
 GtkWidget *displayControl() {
   GtkWidget *canvas, *arrows, *buttonsArray, *coords, *board, *pieces,
       *whitePlayerDetails, *blackPlayerDetails;
   cairo_t *cr;
-  fenActive = 0;
+  display_output_t *output;
 
   char *piece_svgs = "pieces/merida/";
   GError *err = NULL;
   load_svgs(piece_svgs, &err);
   canvas = gtk_vbox_new(0, 0);
   board = gtk_drawing_area_new();
-  boardRef = board;
   gtk_widget_set_size_request(board, BOARD_SIZE_X, BOARD_SIZE_Y);
+  board_info = (board_info_t *)malloc(sizeof(board_info_t));
+  board_info->widget = board;
+  board_info->fenActive = 0;
+  g_signal_connect(board_info->widget, "draw", G_CALLBACK(draw_callback), board_info);
   makeBoard(board);
 
   wNameWidget = gtk_label_new("-");
@@ -69,18 +89,21 @@ GtkWidget *displayControl() {
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
 
-  char piecesDir[] = "pieces/merida/w_q.svg";
+  char piecesDir[] = "pieces/merida/";
   //makePieces(pieces, piecesDir);
   //gtk_box_pack_end(GTK_BOX(canvas), pieces, 1, 1, 0);
   makeCoordinates(coords);
   makeArrows(arrows);
   makeControlButtonsArray(buttonsArray);
 
-  return canvas;
+  output = (display_output_t *) malloc(sizeof(display_output_t));
+  output->board_info = board_info; 
+  output->canvas = canvas;
+
+  return output;
 }
 
 void makeBoard(GtkWidget *board) {
-  g_signal_connect(board, "draw", G_CALLBACK(draw_board), board);
 }
 
 void makePieces(GtkWidget *pieces, char *piecesDir) {
@@ -119,8 +142,7 @@ void makeArrows(GtkWidget *arrows) {}
 
 void makeControlButtonsArray(GtkWidget *buttonsArray) {}
 
-static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
-                           GtkWidget *data) {
+static void drawBoard(cairo_t *cr, GtkWidget *data){
   sizes_t ss = getSquareSizes(data);
   for (uint i = 0; i < NUM_SQUARES_Y; ++i) {
     for (uint j = 0; j < NUM_SQUARES_X; ++j) {
@@ -135,21 +157,37 @@ static gboolean draw_board(GtkWidget *drawing_area, cairo_t *cr,
       }
     }
   }
-  // draw pieces
-  if (fenActive > 0) {
+}
+
+static void drawPieces(cairo_t *cr, piece_info_t *pieces){
+    if(pieces->totalCount > 32)
+      return;
     double scale = 0.005 * DEFAULT_BOARD_SIZE / DEFAULT_SQUARE_SIZE;
     RsvgHandle *piece_image;
-    for (uint i = 0; i < pInf[0].totalCount; ++i) {
+    for (uint i = 0; i < pieces[0].totalCount; ++i) {
       cairo_scale(cr, scale, scale);
-      cairo_move_to(cr, pInf[i].x * DEFAULT_SQUARE_SIZE, (7 - pInf[i].y) * DEFAULT_SQUARE_SIZE );
-      printf("PINF: %s, %s \n", pInf[i].color, pInf[i].type);
-      piece_image = piece_images[(pInf[i].color == 'b' ? 0 : 1)][getPieceType(pInf[i].type)];
+      cairo_move_to(cr, pieces[i].x * DEFAULT_SQUARE_SIZE, (7 - pieces[i].y) * DEFAULT_SQUARE_SIZE );
+      printf("PINF: %s, %s \n", pieces[i].color, pieces[i].type);
+      piece_image = piece_images[(pieces[i].color == 'b' ? 0 : 1)][getPieceType(pieces[i].type)];
       rsvg_handle_render_cairo(piece_image, cr);
       cairo_move_to(cr, 0, 0);
       cairo_scale(cr, 1 / scale, 1 / scale);
     }
-  }
-  //fenActive = 0;
+}
+
+static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
+                           board_info_t *data) {
+  GtkWidget* board = data->widget;  
+  piece_info_t *pieces = data->piece_info;
+
+  // draw the chess board
+  drawBoard(cr, board);
+
+  // draw the chess pieces
+  if(data->fenActive == 1)
+    drawPieces(cr, pieces);
+
+  data->fenActive = 0;
   return FALSE;
 }
 
@@ -173,7 +211,7 @@ void load_svgs(char *dir, GError **err) {
 }
 
 void showPieces(piece_info_t *pieceInfo) {
-  fenActive = 1;
-  pInf = pieceInfo;
-  gtk_widget_queue_draw(boardRef);
+  board_info->piece_info = pieceInfo;
+  board_info->fenActive = 1;
+  gtk_widget_queue_draw(board_info->widget);
 }

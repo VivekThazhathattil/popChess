@@ -16,9 +16,34 @@
  */
 
 #include "control.h"
+#include "utils.h"
+#include <gtk/gtk.h>
 
-int main(int argc, char *argv[]) {
-  if (run(argc, argv) == 0)
+typedef struct activateData{
+	int argc;
+	char **argv;
+} activate_data_t;
+
+static void activate(GtkApplication* app, gpointer userData){
+	activate_data_t *dat = (activate_data_t *) userData;
+	int argc = dat->argc;
+	char **argv = dat->argv;
+  if (run(app, argc, argv) == 0)
     printf("Error encountered while running the program. Exiting...");
-  return 0;
+
+	free(dat);
+}
+
+int main(int argc, char **argv) {
+	GtkApplication *app;
+	int status;
+	app = gtk_application_new("com.github.popChess", G_APPLICATION_FLAGS_NONE);
+	activate_data_t *ad = (activate_data_t *) malloc(sizeof(activate_data_t));
+	ad->argc = argc;
+	ad->argv = argv;
+	g_signal_connect(app, "activate", G_CALLBACK(activate), ad);
+	status = g_application_run(G_APPLICATION(app), argc, argv);
+	g_object_unref(app);
+
+  return status;
 }
