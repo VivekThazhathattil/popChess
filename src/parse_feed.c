@@ -86,14 +86,14 @@ char *getFenFromJson(char *feed) {
       a = a->next;
       struct json_value_s *a_value = a->value;
       a = json_value_as_object(a_value)->start;
-      fen = (char *)malloc(sizeof(char) * strlen(getValueString(a)));
+      fen = (char *) malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen, getValueString(a));
     } else if (!strcmp(aValue, "featured")) {
       a = a->next;
       struct json_value_s *a_value = a->value;
       a = json_value_as_object(a_value)->start;
       a = a->next->next->next;
-      fen = (char *)malloc(sizeof(char) * strlen(getValueString(a)));
+      fen = (char *) malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen, getValueString(a));
     }
   }

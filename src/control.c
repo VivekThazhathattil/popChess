@@ -64,20 +64,12 @@ void triggerFENReceived(char *fenFeed) {
   }
 
   char *fen = getFenFromJson(lastJSON);
-  piece_info_t pieceInfo[32];
-  getPiecePositions(fen, pieceInfo);
-  // printf("%s\n", fen);
-  showPieces(pieceInfo);
-  //  printf("TEST:\n");
-  //  for(uint i = 0; i < pieceInfo[0].totalCount; ++i)
-  //    printf("%c,%d,%d,%d,%c\n", pieceInfo[i].type, pieceInfo[i].x,
-  //    pieceInfo[i].y, pieceInfo[i].id, pieceInfo[i].color);
-
-  //  else{
-  //    updateWithLatestData();
-  //    triggerPieceChange();
-  //  }
-  //
+  if(strcmp(fen, "failed")){ // fen =/= "failed"
+    piece_info_t pieceInfo[32];
+    getPiecePositions(fen, pieceInfo);
+    // printf("%s\n", fen);
+    showPieces(pieceInfo);
+  }
   free(fen);
 }
 
