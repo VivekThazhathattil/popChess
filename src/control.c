@@ -38,6 +38,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   }
   showWindow(window);
 
+  freePieceInfo(display_output->board_info->piece_info);
   freeBoardInfo(display_output->board_info);
   freeDisplayOutput(display_output);
   destroyLichessData();
@@ -64,8 +65,8 @@ void triggerFENReceived(char *fenFeed) {
   char *fen = getFenFromJson(lastJSON);
   piece_info_t pieceInfo[32];
   getPiecePositions(fen, pieceInfo);
-  showPieces(pieceInfo);
   printf("%s\n", fen);
+  showPieces(pieceInfo);
   //  printf("TEST:\n");
   //  for(uint i = 0; i < pieceInfo[0].totalCount; ++i)
   //    printf("%c,%d,%d,%d,%c\n", pieceInfo[i].type, pieceInfo[i].x,

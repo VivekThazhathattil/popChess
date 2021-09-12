@@ -58,16 +58,17 @@ void getPiecePositions(char *fen, piece_info_t *pieceInfo) {
     pieceInfo[i].totalCount = pieceId;
 }
 
-uint getPieceType(char c){
-  if(c == 'p')
+uint getPieceType(char c) {
+  if (c == 'p')
     return 0;
-  else if(c == 'b') 
+  else if (c == 'b')
     return 1;
-  else if(c == 'n')
+  else if (c == 'n')
     return 2;
-  else if(c == 'q') 
+  else if (c == 'q')
     return 3;
-  else if(c == 'k') 
+  else if (c == 'k')
     return 4;
-  else return 5;
+  else
+    return 5;
 }

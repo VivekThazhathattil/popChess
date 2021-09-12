@@ -20,21 +20,22 @@
 
 #include <board.h>
 #include <gtk/gtk.h>
+#include <stdlib.h>
 #include <utils.h>
 #ifndef RSVG_CAIRO_H_
-#include <librsvg/rsvg.h>
 #include <librsvg/rsvg-cairo.h>
+#include <librsvg/rsvg.h>
 #endif
 
-typedef struct boardInfo{
-    GtkWidget *widget;
-    int fenActive;
-    piece_info_t *piece_info;
+typedef struct boardInfo {
+  GtkWidget *widget;
+  int fenActive;
+  piece_info_t *piece_info;
 } board_info_t;
 
-typedef struct displayOutput{
-    GtkWidget *canvas;
-    board_info_t *board_info;
+typedef struct displayOutput {
+  GtkWidget *canvas;
+  board_info_t *board_info;
 } display_output_t;
 
 GtkWidget *displayControl();
@@ -50,7 +51,7 @@ void updateAllLabelTexts(lichess_data_t *);
 void updateLabelTexts(GtkWidget *, char *);
 void load_svgs(char *, GError **);
 void showPieces(piece_info_t *);
-void freeBoardInfo(board_info_t*);
-void freeDisplayOutput(display_output_t*);
+void freeBoardInfo(board_info_t *);
+void freeDisplayOutput(display_output_t *);
 
 #endif // include guard
