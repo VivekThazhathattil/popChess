@@ -61,13 +61,13 @@ void getPiecePositions(char *fen, piece_info_t *pieceInfo) {
 uint getPieceType(char c) {
   if (c == 'p')
     return 0;
-  else if (c == 'b')
-    return 1;
   else if (c == 'n')
+    return 1;
+  else if (c == 'b')
     return 2;
-  else if (c == 'q')
+  else if (c == 'r')
     return 3;
-  else if (c == 'k')
+  else if (c == 'q')
     return 4;
   else
     return 5;

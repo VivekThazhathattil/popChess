@@ -158,22 +158,22 @@ static void drawBoard(cairo_t *cr, GtkWidget *data) {
 }
 
 static void drawPieces(cairo_t *cr, piece_info_t *pieces) {
-  printf("drawPieces?: %d\n", pieces[0].totalCount);
+  // printf("drawPieces?: %d\n", pieces[0].totalCount);
   if (pieces[0].totalCount > 32)
     return;
-  double scale = 0.005 * DEFAULT_BOARD_SIZE / DEFAULT_SQUARE_SIZE;
+  double ss = DEFAULT_SQUARE_SIZE;
+  double scale = 0.0048 * DEFAULT_BOARD_SIZE / ss;
   RsvgHandle *piece_image;
   for (uint i = 0; i < pieces[0].totalCount; ++i) {
+    // printf("PINF: %d, %d \n", pieces[i].x, pieces[i].y);
+    cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
     cairo_scale(cr, scale, scale);
-    printf("PINF: %d, %d \n", pieces[i].x, pieces[i].y);
-    cairo_translate(cr, pieces[i].x * DEFAULT_SQUARE_SIZE,
-                    pieces[i].y * DEFAULT_SQUARE_SIZE);
     // printf("PINF: %c, %c \n", pieces[i].color, pieces[i].type);
     piece_image = piece_images[(pieces[i].color == 'b' ? 0 : 1)]
                               [getPieceType(pieces[i].type)];
     rsvg_handle_render_cairo(piece_image, cr);
-    cairo_translate(cr, 0, 0);
     cairo_scale(cr, 1 / scale, 1 / scale);
+    cairo_translate(cr, -pieces[i].x * ss, -(7 - pieces[i].y) * ss);
   }
 }
 
@@ -187,7 +187,7 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
   // draw the chess pieces
   if (fenActive == 1) {
     piece_info_t *pieces = (piece_info_t *)data->piece_info;
-    printf("callback?: %d\n", board_info->piece_info[0].totalCount);
+    // printf("callback?: %d\n", board_info->piece_info[0].totalCount);
     drawPieces(cr, pieces);
   }
 
@@ -218,7 +218,7 @@ void showPieces(piece_info_t *pieceInfo) {
   //  board_info->piece_info = pieceInfo;
   memcpy(board_info->piece_info, pieceInfo,
          pieceInfo[0].totalCount * sizeof(piece_info_t));
-  printf("showPieces: %d\n", board_info->piece_info[0].totalCount);
+  // printf("showPieces: %d\n", board_info->piece_info[0].totalCount);
   board_info->fenActive = 1;
   gtk_widget_queue_draw(board_info->widget);
 }

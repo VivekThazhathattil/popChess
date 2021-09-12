@@ -42,7 +42,6 @@ void curlHandler() {
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
     res = curl_easy_perform(curl_handle);
-    printf("Vivek\n");
 
     if (res != CURLE_OK) {
       fprintf(stderr, "error: %s\n", curl_easy_strerror(res));

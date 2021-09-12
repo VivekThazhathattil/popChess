@@ -51,21 +51,22 @@ void triggerFENReceived(char *fenFeed) {
     if (!fillGameInfo(&lichessData, lastJSON)) {
       printf("Error filling the game info\n");
     }
-    printf("TEST:\n");
-    printf("White name: %s, Black name: %s\n", lichessData.white.name,
-           lichessData.black.name);
-    printf("White rating: %s, Black rating: %s\n", lichessData.white.rating,
-           lichessData.black.rating);
-    printf("White title: %s, Black title: %s\n", lichessData.white.title,
-           lichessData.black.title);
-
+    //    printf("TEST:\n");
+    //    printf("White name: %s, Black name: %s\n", lichessData.white.name,
+    //           lichessData.black.name);
+    //    printf("White rating: %s, Black rating: %s\n",
+    //    lichessData.white.rating,
+    //           lichessData.black.rating);
+    //    printf("White title: %s, Black title: %s\n", lichessData.white.title,
+    //           lichessData.black.title);
+    //
     updateAllLabelTexts(&lichessData);
   }
 
   char *fen = getFenFromJson(lastJSON);
   piece_info_t pieceInfo[32];
   getPiecePositions(fen, pieceInfo);
-  printf("%s\n", fen);
+  // printf("%s\n", fen);
   showPieces(pieceInfo);
   //  printf("TEST:\n");
   //  for(uint i = 0; i < pieceInfo[0].totalCount; ++i)
