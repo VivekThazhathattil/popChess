@@ -33,6 +33,7 @@ typedef struct PlayerAttributes {
 
 typedef struct LichessData {
   player_attributes_t white, black;
+  char *lastMove;
 } lichess_data_t;
 
 typedef struct PieceInfo {
@@ -45,5 +46,13 @@ typedef struct PieceInfo {
 typedef struct Colors {
   double r, g, b;
 } colors_t;
+
+typedef struct FenData{
+    char *fen;
+    char *lastMove;
+    char *whiteClock;
+    char *blackClock; 
+} fen_data_t;
+
 
 #endif // include guard

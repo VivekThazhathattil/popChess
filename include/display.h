@@ -31,6 +31,7 @@ typedef struct boardInfo {
   GtkWidget *widget;
   int fenActive;
   piece_info_t *piece_info;
+  char *wClock, *bClock;
 } board_info_t;
 
 typedef struct displayOutput {
@@ -48,9 +49,10 @@ void makeCoordinates(GtkWidget *);
 void makeArrows(GtkWidget *);
 void makeControlButtonsArray(GtkWidget *);
 void updateAllLabelTexts(lichess_data_t *);
+void updateClockLabelTexts(char *, char *);
 void updateLabelTexts(GtkWidget *, char *);
 void load_svgs(char *, GError **);
-void showPieces(piece_info_t *);
+void showPieces(piece_info_t *, char* , char* );
 void freeBoardInfo(board_info_t *);
 void freeDisplayOutput(display_output_t *);
 void setFenInactive();

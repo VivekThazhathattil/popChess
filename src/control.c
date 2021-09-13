@@ -65,16 +65,25 @@ void triggerFENReceived(char *fenFeed) {
     updateAllLabelTexts(&lichessData);
   }
 
-  char *fen = getFenFromJson(lastJSON);
-  if (strcmp(fen, "failed")) { // fen =/= "failed"
+  fen_data_t *fenData = getFenFromJson(lastJSON);
+  if (fenData != NULL) { // fen =/= "failed"
     piece_info_t pieceInfo[32];
-    getPiecePositions(fen, pieceInfo);
-    // printf("%s\n", fen);
-    showPieces(pieceInfo);
+    getPiecePositions(fenData->fen, pieceInfo);
+    // printf("%s\n", fenData->fen);
+    //fillLastMove(fenData->lastMove);
+    if(fenData->whiteClock != NULL && fenData->blackClock != NULL)
+      fillClockTimes(&lichessData, fenData->whiteClock, fenData->blackClock);
+    showPieces(pieceInfo, fenData->whiteClock, fenData->blackClock);
   } else
     setFenInactive();
-  if (fen != NULL)
-    free(fen);
+
+  if (fenData != NULL){
+    free(fenData->fen);
+    free(fenData->lastMove);
+    free(fenData->whiteClock);
+    free(fenData->blackClock);
+    free(fenData);
+  }
 }
 
 int setWindowProps(GtkWidget *win) {
@@ -99,4 +108,5 @@ void destroyLichessData() {
   free(lichessData.black.title);
   free(lichessData.black.rating);
   free(lichessData.black.timeLeft);
+  free(lichessData.lastMove);
 }

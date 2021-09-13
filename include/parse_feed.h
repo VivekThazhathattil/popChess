@@ -26,8 +26,9 @@
 
 struct json_value_s *json_parse(const void *src, size_t src_size);
 char *getLastJSON(char *feed);
-char *getFenFromJson(char *feed);
+fen_data_t *getFenFromJson(char *feed);
 int isNewGame(char *unparsedJson);
 uint fillGameInfo(lichess_data_t *liData, char *unparsedData);
+uint fillClockTimes(lichess_data_t *LichessData, char* wClock, char* bClock);
 
 #endif // include guard

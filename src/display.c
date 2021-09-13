@@ -44,6 +44,11 @@ void updateAllLabelTexts(lichess_data_t *liDat) {
   updateLabelTexts(bRatingWidget, liDat->black.rating);
 }
 
+void updateClockLabelTexts(char *wTime, char *bTime){
+  updateLabelTexts(wTimeWidget, wTime);
+  updateLabelTexts(bTimeWidget, bTime);
+}
+
 void freePieceInfo(piece_info_t *piece_info) { free(piece_info); }
 
 void freeBoardInfo(board_info_t *board_info) { free(board_info); }
@@ -210,6 +215,10 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
     drawPieces(cr, pieces);
   }
 
+  if(data->wClock != NULL && data->bClock != NULL){
+    updateClockLabelTexts (data->wClock, data->bClock);
+  }
+
   return FALSE;
 }
 
@@ -232,12 +241,16 @@ void load_svgs(char *dir, GError **err) {
   }
 }
 
-void showPieces(piece_info_t *pieceInfo) {
+void showPieces(piece_info_t *pieceInfo, char* wClock, char* bClock) {
   //  board_info->piece_info = pieceInfo;
   memcpy(board_info->piece_info, pieceInfo,
          pieceInfo[0].totalCount * sizeof(piece_info_t));
   // printf("showPieces: %d\n", board_info->piece_info[0].totalCount);
   board_info->fenActive = 1;
+  if(wClock != NULL && bClock != NULL){
+    board_info->wClock = wClock;
+    board_info->bClock = bClock;
+  }
   gtk_widget_queue_draw(board_info->widget);
 }
 
