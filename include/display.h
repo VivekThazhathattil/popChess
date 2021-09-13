@@ -53,5 +53,6 @@ void load_svgs(char *, GError **);
 void showPieces(piece_info_t *);
 void freeBoardInfo(board_info_t *);
 void freeDisplayOutput(display_output_t *);
+void setFenInactive();
 
 #endif // include guard

@@ -27,7 +27,9 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   display_output_t *display_output;
 
   window = gtk_application_window_new(app);
-  display_output = displayControl();
+  if((display_output = displayControl()) == NULL){
+    return 0;
+  }
 
   g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
 
@@ -70,6 +72,8 @@ void triggerFENReceived(char *fenFeed) {
     // printf("%s\n", fen);
     showPieces(pieceInfo);
   }
+  else
+    setFenInactive();
   free(fen);
 }
 

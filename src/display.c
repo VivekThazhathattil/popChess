@@ -63,6 +63,10 @@ GtkWidget *displayControl() {
   board = gtk_drawing_area_new();
   gtk_widget_set_size_request(board, BOARD_SIZE_X, BOARD_SIZE_Y);
   board_info = (board_info_t *)malloc(sizeof(board_info_t));
+  if(!board_info){
+    printf("\n malloc error: Cannot set board_info\n");
+    return canvas;
+  }
   board_info->widget = board;
   board_info->fenActive = 0;
   board_info->piece_info = (piece_info_t *)calloc(32, sizeof(piece_info_t));
@@ -96,9 +100,13 @@ GtkWidget *displayControl() {
   makeControlButtonsArray(buttonsArray);
 
   output = (display_output_t *)malloc(sizeof(display_output_t));
-  output->board_info = board_info;
-  output->canvas = canvas;
-
+  if(!output){
+    printf("\n Error in setting display output\n");
+  }
+  else{
+    output->board_info = board_info;
+    output->canvas = canvas;
+  }
   return output;
 }
 
@@ -191,7 +199,6 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
     drawPieces(cr, pieces);
   }
 
-  data->fenActive = 0;
   return FALSE;
 }
 
@@ -221,4 +228,8 @@ void showPieces(piece_info_t *pieceInfo) {
   // printf("showPieces: %d\n", board_info->piece_info[0].totalCount);
   board_info->fenActive = 1;
   gtk_widget_queue_draw(board_info->widget);
+}
+
+void setFenInactive(){
+  board_info->fenActive = 0;
 }
