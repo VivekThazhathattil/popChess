@@ -42,4 +42,8 @@ typedef struct PieceInfo {
   char type, color;
 } piece_info_t;
 
+typedef struct Colors {
+  double r, g, b;
+} colors_t;
+
 #endif // include guard

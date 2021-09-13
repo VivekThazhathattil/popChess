@@ -48,6 +48,17 @@ static copyAllocateValues(char **key, struct json_object_element_s *value) {
   strcpy(*key, getValueString(value));
 }
 
+static struct json_object_element_s *
+navigateTo(char *destination, struct json_object_element_s *elem) {
+  while (elem != NULL) {
+    //  printf("%s\n", getKeyString(elem));
+    if (!strcmp(getKeyString(elem), destination))
+      break;
+    elem = elem->next;
+  }
+  return elem;
+}
+
 char *getLastJSON(char *feed) {
   /*    get the pointer to the last character of the char string.
       Move backwards until return character is met of argument char pointer is
@@ -83,18 +94,22 @@ char *getFenFromJson(char *feed) {
   // TODO: Rewrite this whole thing to be more legible and codewise efficient
   if (!strcmp(aName, "t")) {
     if (!strcmp(aValue, "fen")) {
-      a = a->next;
+      a = navigateTo("d", a);
       struct json_value_s *a_value = a->value;
       a = json_value_as_object(a_value)->start;
-      fen = (char *) malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+      fen = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen, getValueString(a));
     } else if (!strcmp(aValue, "featured")) {
       a = a->next;
       struct json_value_s *a_value = a->value;
       a = json_value_as_object(a_value)->start;
-      a = a->next->next->next;
-      fen = (char *) malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
-      strcpy(fen, getValueString(a));
+      a = navigateTo("fen", a);
+      if (a == NULL) {
+        printf("Error: Cannot find PGN in JSON. Skipping");
+      } else {
+        fen = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+        strcpy(fen, getValueString(a));
+      }
     }
   }
   free(root);
@@ -115,25 +130,44 @@ int isNewGame(char *unparsedJson) {
   return flag;
 }
 
+// typical JSON from the curl output is of this form:
+/*{"t":"featured","d":{"id":"52Vg8VB0","orientation":"black","players":[{"color":"white","user":{"name":"donotcrymeariver","id":"donotcrymeariver"},"rating":2634},{"color":"black","user":{"name":"NguyenDucHoa","title":"GM","id":"nguyenduchoa"},"rating":2644}],"fen":"r1r3k1/p2n1pbp/b1pBp1p1/q2p4/3P4/P1N3P1/1P2PPBP/2RQR1K1"}}
+{"t":"fen","d":{"fen":"r1r3k1/p2n1pbp/bqpBp1p1/3p4/3P4/P1N3P1/1P2PPBP/2RQR1K1
+w","lm":"a5b6","wc":161,"bc":121}} */
+
 uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
   uint errFlag = 1;
   struct json_value_s *root = json_parse(unparsedData, strlen(unparsedData));
   struct json_object_element_s *a = initJsonObjElement(root);
-  a = valueToElement(
-      a->next);      // takes an element. returns its value as an element.
-  a = a->next->next; // id->orientation->players
+
+  if ((a = navigateTo("d", a)) == NULL) {
+    printf("Error: No field:\'d\' found. Invalid JSON\n");
+    return --errFlag;
+  }
+  // get into the inner JSON of key:'d' convert the value of 'd' into a json
+  // element
+  a = valueToElement(a);
+
+  if ((a = navigateTo("players", a)) == NULL) {
+    printf("Error: No field:\'players\' was found. Invalid JSON\n");
+    return --errFlag;
+  }
   struct json_array_s *array = json_value_as_array(a->value);
   assert(array->length == 2);
+
   struct json_array_element_s *firstArrayElement = array->start;
   struct json_value_s *whiteInfo = firstArrayElement->value;
   struct json_object_s *whiteData = (struct json_object_s *)whiteInfo->payload;
   struct json_object_element_s *whiteColor, *whiteUser, *whiteRating,
       *whiteUserName, *whiteUserTitle, *blackColor, *blackUser, *blackRating,
       *blackUserName, *blackUserTitle;
-  whiteColor = whiteData->start;
-  whiteUser = whiteColor->next;
-  whiteRating = whiteUser->next;
-  whiteUserName = valueToElement(whiteUser);
+
+  whiteColor = navigateTo("color", whiteData->start);
+  whiteUser = navigateTo("user", whiteData->start);
+  whiteRating = navigateTo("rating", whiteData->start);
+
+  whiteUserName =
+      valueToElement(whiteUser); // TODO: check the correctness of this part
   whiteUserTitle = whiteUserName->next;
   // TODO: get the clocktime from fen adjoint data
 
@@ -141,9 +175,11 @@ uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
   struct json_value_s *blackInfo = secondArrayElement->value;
   struct json_object_s *blackData =
       (struct json_object_s *)(blackInfo)->payload;
-  blackColor = blackData->start;
-  blackUser = blackColor->next;
-  blackRating = blackUser->next;
+
+  blackColor = navigateTo("color", blackData->start);
+  blackUser = navigateTo("user", blackData->start);
+  blackRating = navigateTo("rating", blackData->start);
+
   blackUserName = valueToElement(blackUser);
   blackUserTitle = blackUserName->next;
 

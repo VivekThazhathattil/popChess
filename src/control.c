@@ -27,7 +27,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   display_output_t *display_output;
 
   window = gtk_application_window_new(app);
-  if((display_output = displayControl()) == NULL){
+  if ((display_output = displayControl()) == NULL) {
     return 0;
   }
 
@@ -66,15 +66,15 @@ void triggerFENReceived(char *fenFeed) {
   }
 
   char *fen = getFenFromJson(lastJSON);
-  if(strcmp(fen, "failed")){ // fen =/= "failed"
+  if (strcmp(fen, "failed")) { // fen =/= "failed"
     piece_info_t pieceInfo[32];
     getPiecePositions(fen, pieceInfo);
     // printf("%s\n", fen);
     showPieces(pieceInfo);
-  }
-  else
+  } else
     setFenInactive();
-  free(fen);
+  if (fen != NULL)
+    free(fen);
 }
 
 int setWindowProps(GtkWidget *win) {

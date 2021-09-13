@@ -63,7 +63,7 @@ GtkWidget *displayControl() {
   board = gtk_drawing_area_new();
   gtk_widget_set_size_request(board, BOARD_SIZE_X, BOARD_SIZE_Y);
   board_info = (board_info_t *)malloc(sizeof(board_info_t));
-  if(!board_info){
+  if (!board_info) {
     printf("\n malloc error: Cannot set board_info\n");
     return canvas;
   }
@@ -100,10 +100,9 @@ GtkWidget *displayControl() {
   makeControlButtonsArray(buttonsArray);
 
   output = (display_output_t *)malloc(sizeof(display_output_t));
-  if(!output){
+  if (!output) {
     printf("\n Error in setting display output\n");
-  }
-  else{
+  } else {
     output->board_info = board_info;
     output->canvas = canvas;
   }
@@ -148,16 +147,28 @@ void makeArrows(GtkWidget *arrows) {}
 
 void makeControlButtonsArray(GtkWidget *buttonsArray) {}
 
+static void assignColors(colors_t *color, const double r, const double g,
+                         const double b) {
+  // colors assumed to be in (r,g,b) format : (0,0,0) -> (255, 255, 255)
+  color->r = r / 255;
+  color->g = g / 255;
+  color->b = b / 255;
+}
+
 static void drawBoard(cairo_t *cr, GtkWidget *data) {
+  colors_t darkSquares, lightSquares;
+  assignColors(&darkSquares, 240, 217, 181);
+  assignColors(&lightSquares, 181, 136, 99);
   sizes_t ss = getSquareSizes(data);
   for (uint i = 0; i < NUM_SQUARES_Y; ++i) {
     for (uint j = 0; j < NUM_SQUARES_X; ++j) {
       if ((i + j) % 2 == 0) {
-        cairo_set_source_rgb(cr, 240.0 / 255, 217.0 / 255, 181.0 / 255);
+        cairo_set_source_rgb(cr, darkSquares.r, darkSquares.g, darkSquares.b);
         cairo_rectangle(cr, i * ss.x, j * ss.y, ss.x, ss.y);
         cairo_fill(cr);
       } else {
-        cairo_set_source_rgb(cr, 181.0 / 255, 136.0 / 255, 99.0 / 255);
+        cairo_set_source_rgb(cr, lightSquares.r, lightSquares.g,
+                             lightSquares.b);
         cairo_rectangle(cr, i * ss.x, j * ss.y, ss.x, ss.y);
         cairo_fill(cr);
       }
@@ -230,6 +241,4 @@ void showPieces(piece_info_t *pieceInfo) {
   gtk_widget_queue_draw(board_info->widget);
 }
 
-void setFenInactive(){
-  board_info->fenActive = 0;
-}
+void setFenInactive() { board_info->fenActive = 0; }

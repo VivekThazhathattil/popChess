@@ -18,12 +18,14 @@ build:
 	$(CC) -g $(CFLAGS) -c $(SRC)
 	mkdir -p $(OBJ_DIR) && mv ./*.o $(OBJ_DIR)
 	$(CC) $(OBJ_FILES) -o $(PROG_NAME) $(LINK_FLAGS)
-	chmod 755 $(PROG_NAME)
-	./$(PROG_NAME)
 
 clean:
 	rm -f $(PROG_NAME)
 	rm -rf $(OBJ_DIR)
 
 format:
+	chmod 755 $(PROG_NAME)
 	clang-format -i */*.h */*.c
+
+run: 
+	./$(PROG_NAME)
