@@ -73,7 +73,7 @@ void triggerFENReceived(char *fenFeed) {
     //fillLastMove(fenData->lastMove);
     if(fenData->whiteClock != NULL && fenData->blackClock != NULL)
       fillClockTimes(&lichessData, fenData->whiteClock, fenData->blackClock);
-    showPieces(pieceInfo, fenData->whiteClock, fenData->blackClock);
+    showPieces(pieceInfo, &lichessData);
   } else
     setFenInactive();
 

@@ -48,6 +48,11 @@ static copyAllocateValues(char **key, struct json_object_element_s *value) {
   strcpy(*key, getValueString(value));
 }
 
+static copyAllocateString(char **key, char *_string) {
+  *key = (char *)malloc(sizeof(char) * strlen(_string) + 1);
+  strcpy(*key, _string);
+}
+
 static struct json_object_element_s *
 navigateTo(char *destination, struct json_object_element_s *elem) {
   while (elem != NULL) {
@@ -223,7 +228,7 @@ uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
 uint fillClockTimes(lichess_data_t *destData, char* wClock, char* bClock){
   // TODO: fix errflag usability
   uint errFlag = 1; 
-  copyAllocateValues(&destData->white.timeLeft, wClock);
-  copyAllocateValues(&destData->black.timeLeft, bClock);
+  copyAllocateString(&destData->white.timeLeft, wClock);
+  copyAllocateString(&destData->black.timeLeft, bClock);
   return errFlag;
 }
