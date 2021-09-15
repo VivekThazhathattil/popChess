@@ -232,3 +232,11 @@ uint fillClockTimes(lichess_data_t *destData, char* wClock, char* bClock){
   copyAllocateString(&destData->black.timeLeft, bClock);
   return errFlag;
 }
+
+uint fillLastMove(lichess_data_t *destData, char *lastMove){
+  if(lastMove == NULL)
+    destData->lastMove = NULL;
+  else
+    copyAllocateString(&destData->lastMove, lastMove);
+  return 1;
+}

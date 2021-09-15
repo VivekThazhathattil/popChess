@@ -32,5 +32,6 @@
 sizes_t getSquareSizes(GtkWidget *);
 void getPiecePositions(char *, piece_info_t *);
 uint getPieceType(char);
+uint getCoordinatesFromMove(char*, uint*, uint*, uint*, uint*);
 
 #endif // include guard

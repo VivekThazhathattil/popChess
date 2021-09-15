@@ -44,7 +44,7 @@ typedef struct PieceInfo {
 } piece_info_t;
 
 typedef struct Colors {
-  double r, g, b;
+  double r, g, b, a;
 } colors_t;
 
 typedef struct FenData{

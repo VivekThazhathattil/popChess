@@ -30,5 +30,6 @@ fen_data_t *getFenFromJson(char *feed);
 int isNewGame(char *unparsedJson);
 uint fillGameInfo(lichess_data_t *liData, char *unparsedData);
 uint fillClockTimes(lichess_data_t *LichessData, char* wClock, char* bClock);
+uint fillLastMove(lichess_data_t *destData, char *lastMove);
 
 #endif // include guard

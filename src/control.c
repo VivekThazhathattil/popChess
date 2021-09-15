@@ -43,7 +43,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   freePieceInfo(display_output->board_info->piece_info);
   freeBoardInfo(display_output->board_info);
   freeDisplayOutput(display_output);
-  destroyLichessData();
+  freeLichessData();
   return 1;
 }
 
@@ -53,15 +53,6 @@ void triggerFENReceived(char *fenFeed) {
     if (!fillGameInfo(&lichessData, lastJSON)) {
       printf("Error filling the game info\n");
     }
-    //    printf("TEST:\n");
-    //    printf("White name: %s, Black name: %s\n", lichessData.white.name,
-    //           lichessData.black.name);
-    //    printf("White rating: %s, Black rating: %s\n",
-    //    lichessData.white.rating,
-    //           lichessData.black.rating);
-    //    printf("White title: %s, Black title: %s\n", lichessData.white.title,
-    //           lichessData.black.title);
-    //
     updateAllLabelTexts(&lichessData);
   }
 
@@ -70,7 +61,8 @@ void triggerFENReceived(char *fenFeed) {
     piece_info_t pieceInfo[32];
     getPiecePositions(fenData->fen, pieceInfo);
     // printf("%s\n", fenData->fen);
-    //fillLastMove(fenData->lastMove);
+
+    fillLastMove(&lichessData, fenData->lastMove);
     if(fenData->whiteClock != NULL && fenData->blackClock != NULL)
       fillClockTimes(&lichessData, fenData->whiteClock, fenData->blackClock);
     showPieces(pieceInfo, &lichessData);
@@ -99,7 +91,7 @@ void showWindow(GtkWidget *win) {
   return;
 }
 
-void destroyLichessData() {
+void freeLichessData() {
   free(lichessData.white.name);
   free(lichessData.white.title);
   free(lichessData.white.rating);

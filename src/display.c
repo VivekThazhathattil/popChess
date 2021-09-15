@@ -152,18 +152,18 @@ void makeArrows(GtkWidget *arrows) {}
 
 void makeControlButtonsArray(GtkWidget *buttonsArray) {}
 
-static void assignColors(colors_t *color, const double r, const double g,
-                         const double b) {
+static void assignColors(colors_t *color, const double r, const double g, const double b, const double a) {
   // colors assumed to be in (r,g,b) format : (0,0,0) -> (255, 255, 255)
   color->r = r / 255;
   color->g = g / 255;
   color->b = b / 255;
+  color->a = a /255;
 }
 
 static void drawBoard(cairo_t *cr, GtkWidget *data) {
   colors_t darkSquares, lightSquares;
-  assignColors(&darkSquares, 240, 217, 181);
-  assignColors(&lightSquares, 181, 136, 99);
+  assignColors(&darkSquares, 240, 217, 181, 255);
+  assignColors(&lightSquares, 181, 136, 99, 255);
   sizes_t ss = getSquareSizes(data);
   for (uint i = 0; i < NUM_SQUARES_Y; ++i) {
     for (uint j = 0; j < NUM_SQUARES_X; ++j) {
@@ -201,6 +201,24 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces) {
   }
 }
 
+static void highlightLastMove(cairo_t *cr, char* lastMove){ 
+  uint x1Coord, y1Coord, x2Coord, y2Coord;
+  if(!getCoordinatesFromMove(lastMove, &x1Coord, &y1Coord, &x2Coord, &y2Coord)){
+    printf("Error: Last move \'%s\' not recognized.\n", lastMove);
+    return;
+  }
+
+  //printf("%d, %d, %d, %d", x1Coord, y1Coord, x2Coord, y2Coord);
+  colors_t squareColor;
+  assignColors(&squareColor, 255, 165, 0, 150);
+  uint ss = DEFAULT_SQUARE_SIZE;
+  cairo_set_source_rgba(cr, squareColor.r, squareColor.g, squareColor.b, squareColor.a);
+  cairo_rectangle(cr, x1Coord * ss, (7 - y1Coord) * ss, ss, ss);
+  cairo_fill(cr);
+  cairo_rectangle(cr, x2Coord * ss, (7 - y2Coord) * ss, ss, ss);
+  cairo_fill(cr);
+}
+
 static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
                               board_info_t *data) {
   GtkWidget *board = (GtkWidget *)data->widget;
@@ -210,11 +228,14 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
 
   // draw the chess pieces
   if (fenActive == 1) {
+    if(data->lastMove){
+      highlightLastMove(cr, data->lastMove);
     piece_info_t *pieces = (piece_info_t *)data->piece_info;
     // printf("callback?: %d\n", board_info->piece_info[0].totalCount);
     drawPieces(cr, pieces);
     if(data->wClock && data->bClock)
       updateClockLabelTexts (data->wClock, data->bClock);
+    }
   }
 
   return FALSE;
@@ -246,7 +267,6 @@ void showPieces(piece_info_t *pieceInfo, lichess_data_t *liDat) {
   // printf("showPieces: %d\n", board_info->piece_info[0].totalCount);
   board_info->fenActive = 1;
   if(liDat->white.timeLeft && liDat->black.timeLeft){
-    printf("%s", board_info->wClock);
     board_info->wClock = liDat->white.timeLeft;
     board_info->bClock = liDat->black.timeLeft;
   }
@@ -254,6 +274,10 @@ void showPieces(piece_info_t *pieceInfo, lichess_data_t *liDat) {
     board_info->wClock = NULL;
     board_info->bClock = NULL;
   }
+  if(liDat->lastMove)
+    board_info->lastMove = liDat->lastMove;
+  else
+    board_info->lastMove = NULL;  
   gtk_widget_queue_draw(board_info->widget);
 }
 

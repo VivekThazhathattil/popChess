@@ -32,6 +32,7 @@ typedef struct boardInfo {
   int fenActive;
   piece_info_t *piece_info;
   char *wClock, *bClock;
+  char *lastMove;
 } board_info_t;
 
 typedef struct displayOutput {

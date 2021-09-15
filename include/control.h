@@ -33,6 +33,6 @@ int run(GtkApplication *app, int argc, char *args[]);
 int setWindowProps(GtkWidget *win);
 void showWindow(GtkWidget *win);
 void triggerFENReceived(char *fenFeed);
-void destroyLichessData();
+void freeLichessData();
 
 #endif // include guard
