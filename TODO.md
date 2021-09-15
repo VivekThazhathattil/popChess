@@ -28,6 +28,9 @@
 * button to enable/disable last move squares
 * Try to make it a transparent widget if possible
 * Drop down menu to select pieces
+* Integrate a chess-engine to evaluate the current position
+* Create bar display similar to lichess and chess.com
+* make a status icon in the system tray which when hovered shows the ongoing game in a tiny window
 
 ## IMPORTANT:
 * Write unit tests
