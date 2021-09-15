@@ -43,12 +43,13 @@ valueToElement(struct json_object_element_s *a) {
   return json_value_as_object(a_value)->start;
 }
 
-static copyAllocateValues(char **key, struct json_object_element_s *value) {
+static void copyAllocateValues(char **key,
+                               struct json_object_element_s *value) {
   *key = (char *)malloc(sizeof(char) * strlen(getValueString(value)) + 1);
   strcpy(*key, getValueString(value));
 }
 
-static copyAllocateString(char **key, char *_string) {
+static void copyAllocateString(char **key, char *_string) {
   *key = (char *)malloc(sizeof(char) * strlen(_string) + 1);
   strcpy(*key, _string);
 }
@@ -105,22 +106,26 @@ fen_data_t *getFenFromJson(char *feed) {
       fen_data = (fen_data_t *)malloc(sizeof(fen_data_t));
 
       a = navigateTo("fen", a);
-      fen_data->fen = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+      fen_data->fen =
+          (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen_data->fen, getValueString(a));
 
       a = navigateTo("lm", a); // last move
-      fen_data->lastMove = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+      fen_data->lastMove =
+          (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen_data->lastMove, getValueString(a));
 
       a = navigateTo("wc", a);
-      //printf("Vivek\n");
-      //printf("wc: %s\n",getValueString(a));
-      //printf("Keviv\n");
-      fen_data->whiteClock = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+      // printf("Vivek\n");
+      // printf("wc: %s\n",getValueString(a));
+      // printf("Keviv\n");
+      fen_data->whiteClock =
+          (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen_data->whiteClock, getValueString(a));
 
       a = navigateTo("bc", a);
-      fen_data->blackClock = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+      fen_data->blackClock =
+          (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen_data->blackClock, getValueString(a));
 
     } else if (!strcmp(aValue, "featured")) {
@@ -132,7 +137,8 @@ fen_data_t *getFenFromJson(char *feed) {
         printf("Error: Cannot find PGN in JSON. Skipping");
       } else {
         fen_data = (fen_data_t *)malloc(sizeof(fen_data_t));
-        fen_data->fen = (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
+        fen_data->fen =
+            (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
         strcpy(fen_data->fen, getValueString(a));
         fen_data->lastMove = NULL;
         fen_data->whiteClock = NULL;
@@ -141,7 +147,7 @@ fen_data_t *getFenFromJson(char *feed) {
     }
   }
   free(root);
-  if(!fen_data->fen){
+  if (!fen_data->fen) {
     free(fen_data);
     return NULL;
   }
@@ -225,16 +231,16 @@ uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
   return errFlag;
 }
 
-uint fillClockTimes(lichess_data_t *destData, char* wClock, char* bClock){
+uint fillClockTimes(lichess_data_t *destData, char *wClock, char *bClock) {
   // TODO: fix errflag usability
-  uint errFlag = 1; 
+  uint errFlag = 1;
   copyAllocateString(&destData->white.timeLeft, wClock);
   copyAllocateString(&destData->black.timeLeft, bClock);
   return errFlag;
 }
 
-uint fillLastMove(lichess_data_t *destData, char *lastMove){
-  if(lastMove == NULL)
+uint fillLastMove(lichess_data_t *destData, char *lastMove) {
+  if (lastMove == NULL)
     destData->lastMove = NULL;
   else
     copyAllocateString(&destData->lastMove, lastMove);

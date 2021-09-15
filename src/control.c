@@ -63,13 +63,13 @@ void triggerFENReceived(char *fenFeed) {
     // printf("%s\n", fenData->fen);
 
     fillLastMove(&lichessData, fenData->lastMove);
-    if(fenData->whiteClock != NULL && fenData->blackClock != NULL)
+    if (fenData->whiteClock != NULL && fenData->blackClock != NULL)
       fillClockTimes(&lichessData, fenData->whiteClock, fenData->blackClock);
     showPieces(pieceInfo, &lichessData);
   } else
     setFenInactive();
 
-  if (fenData != NULL){
+  if (fenData != NULL) {
     free(fenData->fen);
     free(fenData->lastMove);
     free(fenData->whiteClock);

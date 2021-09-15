@@ -74,24 +74,29 @@ uint getPieceType(char c) {
 }
 
 // move: Eg: 'a5b6' 'c1c8'
-uint getCoordinatesFromMove(char* move, uint* x1, uint* y1, uint *x2, uint* y2){
-  //printf("%s\n", move);
-  if(strlen(move) > 4)
+uint getCoordinatesFromMove(char *move, uint *x1, uint *y1, uint *x2,
+                            uint *y2) {
+  // printf("%s\n", move);
+  if (strlen(move) > 4)
     return 0;
   char *pch;
   char files[] = "abcdefgh";
   char ranks[] = "12345678";
   pch = strchr(files, move[0]);
-  if(pch == NULL) return 0;
+  if (pch == NULL)
+    return 0;
   *x1 = pch - files;
   pch = strchr(ranks, move[1]);
-  if(pch == NULL) return 0;
+  if (pch == NULL)
+    return 0;
   *y1 = pch - ranks;
   pch = strchr(files, move[2]);
-  if(pch == NULL) return 0;
+  if (pch == NULL)
+    return 0;
   *x2 = pch - files;
   pch = strchr(ranks, move[3]);
-  if(pch == NULL) return 0;
+  if (pch == NULL)
+    return 0;
   *y2 = pch - ranks;
   return 1;
 }

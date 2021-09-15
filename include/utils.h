@@ -47,12 +47,11 @@ typedef struct Colors {
   double r, g, b, a;
 } colors_t;
 
-typedef struct FenData{
-    char *fen;
-    char *lastMove;
-    char *whiteClock;
-    char *blackClock; 
+typedef struct FenData {
+  char *fen;
+  char *lastMove;
+  char *whiteClock;
+  char *blackClock;
 } fen_data_t;
-
 
 #endif // include guard

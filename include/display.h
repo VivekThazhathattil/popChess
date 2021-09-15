@@ -24,7 +24,6 @@
 #include <utils.h>
 #ifndef RSVG_CAIRO_H_
 #include <librsvg/rsvg.h>
-#include <librsvg/rsvg-cairo.h>
 #endif
 
 typedef struct boardInfo {
@@ -50,7 +49,7 @@ void makeCoordinates(GtkWidget *);
 void makeArrows(GtkWidget *);
 void makeControlButtonsArray(GtkWidget *);
 void updateAllLabelTexts(lichess_data_t *);
-void updateClockLabelTexts(char*, char*);
+void updateClockLabelTexts(char *, char *);
 void updateLabelTexts(GtkWidget *, char *);
 void load_svgs(char *, GError **);
 void showPieces(piece_info_t *, lichess_data_t *);
