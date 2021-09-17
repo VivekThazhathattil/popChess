@@ -116,9 +116,6 @@ fen_data_t *getFenFromJson(char *feed) {
       strcpy(fen_data->lastMove, getValueString(a));
 
       a = navigateTo("wc", a);
-      // printf("Vivek\n");
-      // printf("wc: %s\n",getValueString(a));
-      // printf("Keviv\n");
       fen_data->whiteClock =
           (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
       strcpy(fen_data->whiteClock, getValueString(a));

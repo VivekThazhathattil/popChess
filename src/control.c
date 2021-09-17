@@ -19,6 +19,14 @@
 
 lichess_data_t lichessData;
 
+static gboolean check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data){
+  if (event->keyval == GDK_KEY_Escape) {
+    gtk_main_quit();
+    return TRUE;
+  }
+  return FALSE;
+}
+
 int run(GtkApplication *app, int argc, char *argv[]) {
   gtk_init(&argc, &argv);
   initCurl();
@@ -32,6 +40,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   }
 
   g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
+  g_signal_connect(window, "key_press_event", G_CALLBACK(check_escape), NULL);
 
   gtk_container_add(GTK_CONTAINER(window), display_output->canvas);
   if (setWindowProps(window) != 1) {

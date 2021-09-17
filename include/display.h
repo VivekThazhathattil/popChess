@@ -39,9 +39,12 @@ typedef struct displayOutput {
   board_info_t *board_info;
 } display_output_t;
 
+typedef struct buttonArray{
+  GtkWidget *flipBoard, *selectMode, *selectColor, *selectPieces, *copyFEN;
+  GtkWidget *showUndefendedPieces, *showEvaluationBar, *copyImage;
+} button_array_t;
+
 GtkWidget *displayControl();
-void makeBoard(GtkWidget *);
-void makePieces(GtkWidget *, char *);
 void updateCanvas(GtkWidget *, char *, char *, char *, char *, char *, char *);
 void makePlayerDetails(GtkWidget *, GtkWidget *, GtkWidget *, GtkWidget *,
                        char *, char *, char *);

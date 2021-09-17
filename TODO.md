@@ -6,6 +6,7 @@
 * ~~recursively travel the JSON to get the required fields. Current method is too rigid. Can lead to problems when patreons are playing.~~
 * sometimes pieces are displayed as their tiny versions. Don't know why it happens
 * Need some mechanism in place to recover from broken network connection
+* Fix escape button exit seg fault
 
 ## enhancements:
 

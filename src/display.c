@@ -60,6 +60,7 @@ GtkWidget *displayControl() {
       *whitePlayerDetails, *blackPlayerDetails;
   cairo_t *cr;
   display_output_t *output;
+  button_array_t buttons;
 
   char *piece_svgs = "pieces/merida/";
   GError *err = NULL;
@@ -77,7 +78,6 @@ GtkWidget *displayControl() {
   board_info->piece_info = (piece_info_t *)calloc(32, sizeof(piece_info_t));
   g_signal_connect(board_info->widget, "draw", G_CALLBACK(draw_callback),
                    board_info);
-  makeBoard(board);
 
   wNameWidget = gtk_label_new("-");
   bNameWidget = gtk_label_new("-");
@@ -112,20 +112,6 @@ GtkWidget *displayControl() {
     output->canvas = canvas;
   }
   return output;
-}
-
-void makeBoard(GtkWidget *board) {}
-
-void makePieces(GtkWidget *pieces, char *piecesDir) {
-  GError *error = NULL;
-  GdkPixbuf *pix;
-  if ((pix = gdk_pixbuf_new_from_file_at_scale(piecesDir, 200, 200, TRUE,
-                                               &error)) == NULL) {
-    g_printerr("Error loading file: #%d %s\n", error->code, error->message);
-    g_error_free(error);
-    exit(1);
-  }
-  pieces = gtk_image_new_from_pixbuf(pix);
 }
 
 void updateLabelTexts(GtkWidget *label, char *text) {
@@ -233,12 +219,12 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
   if (fenActive == 1) {
     if (data->lastMove) {
       highlightLastMove(cr, data->lastMove);
-      piece_info_t *pieces = (piece_info_t *)data->piece_info;
       // printf("callback?: %d\n", board_info->piece_info[0].totalCount);
-      drawPieces(cr, pieces);
       if (data->wClock && data->bClock)
         updateClockLabelTexts(data->wClock, data->bClock);
     }
+    piece_info_t *pieces = (piece_info_t *)data->piece_info;
+    drawPieces(cr, pieces);
   }
 
   return FALSE;
