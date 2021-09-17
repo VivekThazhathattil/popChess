@@ -49,6 +49,7 @@ Distributed under GNU General Public License. See `LICENSE` for more information
 ## Contact
 
 For any queries, please contact me, Vivek T @ [vivek.thazhathattil@gmail.com](mailto:vivek.thazhathattil@gmail.com)
+
 Project link: [https://github.com/VivekThazhathattil/popChess](https://github.com/VivekThazhathattil/popChess)
 
 ## Acknowledgements
