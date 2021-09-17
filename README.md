@@ -58,4 +58,6 @@ Project link: [https://github.com/VivekThazhathattil/popChess](https://github.co
 * [GTK3+](https://docs.gtk.org/gtk3/)
 * Neil Henning [sheredom](https://github.com/sheredom) for [jsoh.h](https://github.com/sheredom/json.h)
 
-https://user-images.githubusercontent.com/63693789/132998583-c5082a1c-0fee-4391-9fe9-2b46cfbcff64.mp4
+
+https://user-images.githubusercontent.com/63693789/133836525-5c7d5bfc-bf0e-4e2e-afab-0f424938db73.mp4
+
