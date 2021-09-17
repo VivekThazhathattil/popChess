@@ -56,7 +56,7 @@ void freeBoardInfo(board_info_t *board_info) { free(board_info); }
 void freeDisplayOutput(display_output_t *output) { free(output); }
 
 GtkWidget *displayControl() {
-  GtkWidget *canvas, *arrows, *buttonsArray, *coords, *board, *pieces,
+  GtkWidget *canvas, *outVBox, *arrows, *buttonArray, *coords, *board, *pieces,
       *whitePlayerDetails, *blackPlayerDetails;
   cairo_t *cr;
   display_output_t *output;
@@ -65,7 +65,11 @@ GtkWidget *displayControl() {
   char *piece_svgs = "pieces/merida/";
   GError *err = NULL;
   load_svgs(piece_svgs, &err);
+
   canvas = gtk_vbox_new(0, 0);
+  outVBox = gtk_hbox_new(0, 0);
+  buttonArray = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
+
   board = gtk_drawing_area_new();
   gtk_widget_set_size_request(board, BOARD_SIZE_X, BOARD_SIZE_Y);
   board_info = (board_info_t *)malloc(sizeof(board_info_t));
@@ -97,19 +101,22 @@ GtkWidget *displayControl() {
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
 
+  makeControlButtonsArray(buttonArray, &buttons);
+  gtk_box_pack_start(GTK_BOX(outVBox), canvas, 1,1,0);
+  gtk_box_pack_start(GTK_BOX(outVBox), buttonArray, 1,1,0);
+
   char piecesDir[] = "pieces/merida/";
   // makePieces(pieces, piecesDir);
   // gtk_box_pack_end(GTK_BOX(canvas), pieces, 1, 1, 0);
   makeCoordinates(coords);
   makeArrows(arrows);
-  makeControlButtonsArray(buttonsArray);
 
   output = (display_output_t *)malloc(sizeof(display_output_t));
   if (!output) {
     printf("\n Error in setting display output\n");
   } else {
     output->board_info = board_info;
-    output->canvas = canvas;
+    output->display = outVBox;
   }
   return output;
 }
@@ -136,7 +143,32 @@ void makeCoordinates(GtkWidget *coords) {}
 
 void makeArrows(GtkWidget *arrows) {}
 
-void makeControlButtonsArray(GtkWidget *buttonsArray) {}
+static GtkWidget *gtkImageButton(char *imageLocation){
+  GtkWidget *image = gtk_image_new_from_file (imageLocation);
+  GtkWidget *button = gtk_button_new ();
+  gtk_button_set_image (GTK_BUTTON (button), image);
+  return button;
+}
+
+void makeControlButtonsArray(GtkWidget *array, button_array_t *btns) {
+  btns->flipBoard = gtkImageButton("res/flip.png");
+  btns->selectMode = gtkImageButton("res/mode.png");         
+  btns->selectColor = gtkImageButton("res/color.png");        
+  btns->selectPieces = gtkImageButton("res/piece.png");        
+  btns->copyFEN = gtkImageButton("res/fencopy.png");             
+  btns->copyImage = gtkImageButton("res/imgcopy.png");           
+  btns->showUndefendedPieces = gtkImageButton("res/undefended.png");
+  btns->showEvaluationBar = gtkImageButton("res/evalbar.png");   
+
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->flipBoard, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->selectMode, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->selectColor, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->selectPieces, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->copyFEN, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->copyImage, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->showUndefendedPieces, 1,1,1);
+  gtk_box_pack_start(GTK_BUTTON_BOX(array), btns->showEvaluationBar, 1,1,1);
+}
 
 static void assignColors(colors_t *color, const double r, const double g,
                          const double b, const double a) {

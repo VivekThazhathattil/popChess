@@ -42,7 +42,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
   g_signal_connect(window, "key_press_event", G_CALLBACK(check_escape), NULL);
 
-  gtk_container_add(GTK_CONTAINER(window), display_output->canvas);
+  gtk_container_add(GTK_CONTAINER(window), display_output->display);
   if (setWindowProps(window) != 1) {
     printf("Setting window props failed. Exiting...");
     exit(0);

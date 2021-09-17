@@ -20,6 +20,7 @@
 
 #include <board.h>
 #include <gtk/gtk.h>
+#include <gtk/gtkbutton.h>
 #include <stdlib.h>
 #include <utils.h>
 #ifndef RSVG_CAIRO_H_
@@ -35,11 +36,11 @@ typedef struct boardInfo {
 } board_info_t;
 
 typedef struct displayOutput {
-  GtkWidget *canvas;
+  GtkWidget *display;
   board_info_t *board_info;
 } display_output_t;
 
-typedef struct buttonArray{
+typedef struct ButtonArray{
   GtkWidget *flipBoard, *selectMode, *selectColor, *selectPieces, *copyFEN;
   GtkWidget *showUndefendedPieces, *showEvaluationBar, *copyImage;
 } button_array_t;
@@ -50,7 +51,7 @@ void makePlayerDetails(GtkWidget *, GtkWidget *, GtkWidget *, GtkWidget *,
                        char *, char *, char *);
 void makeCoordinates(GtkWidget *);
 void makeArrows(GtkWidget *);
-void makeControlButtonsArray(GtkWidget *);
+void makeControlButtonsArray(GtkWidget *, button_array_t*);
 void updateAllLabelTexts(lichess_data_t *);
 void updateClockLabelTexts(char *, char *);
 void updateLabelTexts(GtkWidget *, char *);
