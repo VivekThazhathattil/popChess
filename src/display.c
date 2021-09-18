@@ -24,10 +24,10 @@ GtkWidget *bNameWidget, *bRatingWidget, *bTimeWidget;
 RsvgHandle *piece_images[2][6];
 board_info_t *board_info;
 
-static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
-                              board_info_t *data);
-
+static gboolean draw_callback(GtkWidget *, cairo_t *, board_info_t *);
 static gboolean flip_board_callback(GtkWidget *, gpointer *);
+static gboolean color_callback(GtkWidget *, gpointer *);
+static gboolean coord_callback(GtkWidget *, gpointer *);
 
 // bad practice: remove duplicates
 void updateAllLabelTexts(lichess_data_t *liDat) {
@@ -142,7 +142,8 @@ static GtkWidget *gtkImageButton(char *imageLocation) {
   return button;
 }
 
-void makeControlButtonsArray(GtkWidget *array, button_array_t *btns, board_info_t *data) {
+void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
+                             board_info_t *data) {
   btns->flipBoard = gtkImageButton("res/flip.png");
   btns->selectMode = gtkImageButton("res/mode.png");
   btns->selectColor = gtkImageButton("res/color.png");
@@ -153,7 +154,12 @@ void makeControlButtonsArray(GtkWidget *array, button_array_t *btns, board_info_
   btns->showEvaluationBar = gtkImageButton("res/evalbar.png");
   btns->showCoords = gtkImageButton("res/coords.png");
 
-  g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked", G_CALLBACK(flip_board_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked",
+                   G_CALLBACK(flip_board_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->selectColor), "clicked",
+                   G_CALLBACK(color_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->showCoords), "clicked",
+                   G_CALLBACK(coord_callback), data);
 
   gtk_box_pack_start(GTK_BOX(array), btns->flipBoard, 1, 0, 0);
   gtk_box_pack_start(GTK_BOX(array), btns->selectMode, 1, 0, 0);
@@ -175,22 +181,58 @@ static void assignColors(colors_t *color, const double r, const double g,
   color->a = a / 255;
 }
 
-static void drawBoard(cairo_t *cr, GtkWidget *data, uint isFlipped) {
+static void showFileNames(colors_t *squareColor, cairo_t *cr, uint i, uint j,
+                          sizes_t ss, uint isFlipped) {
+  cairo_save(cr);
+  cairo_set_source_rgb(cr, squareColor->r, squareColor->g, squareColor->b);
+  cairo_set_font_size(cr, 18);
+  char fileName = (isFlipped) ? 'a' + (7 - i) : 'a' + i;
+  cairo_move_to(cr, (i + 0.05) * ss.x, (j + 0.95) * ss.y);
+  cairo_show_text(cr, &fileName);
+  cairo_restore(cr);
+}
+
+static void showRankNumbers(colors_t *squareColor, cairo_t *cr, uint i, uint j,
+                            sizes_t ss, uint isFlipped) {
+  cairo_save(cr);
+  cairo_set_source_rgb(cr, squareColor->r, squareColor->g, squareColor->b);
+  cairo_set_font_size(cr, 18);
+  char fileName = (isFlipped) ? '1' + j : '1' + (7 - j);
+  cairo_move_to(cr, (i + 0.85) * ss.x, (j + 0.95) * ss.y);
+  cairo_show_text(cr, &fileName);
+  cairo_restore(cr);
+}
+
+static void drawBoard(cairo_t *cr, GtkWidget *data, state_vars_t *statesVar) {
   colors_t darkSquares, lightSquares;
-  assignColors(isFlipped ? &lightSquares : &darkSquares, 240, 217, 181, 255);
-  assignColors(isFlipped ? &darkSquares  : &lightSquares, 181, 136, 99, 255);
+  assignColors(statesVar->flip ? &lightSquares : &darkSquares, 240, 217, 181,
+               255);
+  assignColors(statesVar->flip ? &darkSquares : &lightSquares, 181, 136, 99,
+               255);
   sizes_t ss = getSquareSizes(data);
-  for (uint i = 0; i < NUM_SQUARES_Y; ++i) {
-    for (uint j = 0; j < NUM_SQUARES_X; ++j) {
+  for (uint i = 0; i < NUM_SQUARES_X; ++i) {
+    for (uint j = 0; j < NUM_SQUARES_Y; ++j) {
       if ((i + j) % 2 == 0) {
         cairo_set_source_rgb(cr, darkSquares.r, darkSquares.g, darkSquares.b);
         cairo_rectangle(cr, i * ss.x, j * ss.y, ss.x, ss.y);
         cairo_fill(cr);
+        if (statesVar->coords) {
+          if (j == 7)
+            showFileNames(&lightSquares, cr, i, j, ss, statesVar->flip);
+          if (i == 7)
+            showRankNumbers(&lightSquares, cr, i, j, ss, statesVar->flip);
+        }
       } else {
         cairo_set_source_rgb(cr, lightSquares.r, lightSquares.g,
                              lightSquares.b);
         cairo_rectangle(cr, i * ss.x, j * ss.y, ss.x, ss.y);
         cairo_fill(cr);
+        if (statesVar->coords) {
+          if (j == 7)
+            showFileNames(&darkSquares, cr, i, j, ss, statesVar->flip);
+          if (i == 7)
+            showRankNumbers(&darkSquares, cr, i, j, ss, statesVar->flip);
+        }
       }
     }
   }
@@ -205,7 +247,7 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
   RsvgHandle *piece_image;
   for (uint i = 0; i < pieces[0].totalCount; ++i) {
     // printf("PINF: %d, %d \n", pieces[i].x, pieces[i].y);
-    if(isFlipped)
+    if (isFlipped)
       cairo_translate(cr, (7 - pieces[i].x) * ss, (pieces[i].y) * ss);
     else
       cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
@@ -215,10 +257,10 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
                               [getPieceType(pieces[i].type)];
     rsvg_handle_render_cairo(piece_image, cr);
     cairo_scale(cr, 1 / scale, 1 / scale);
-    if(isFlipped)
-      cairo_translate(cr, - (7 - pieces[i].x) * ss, - (pieces[i].y) * ss);
+    if (isFlipped)
+      cairo_translate(cr, -(7 - pieces[i].x) * ss, -(pieces[i].y) * ss);
     else
-      cairo_translate(cr, - pieces[i].x * ss, -(7 - pieces[i].y) * ss);
+      cairo_translate(cr, -pieces[i].x * ss, -(7 - pieces[i].y) * ss);
   }
 }
 
@@ -236,13 +278,13 @@ static void highlightLastMove(cairo_t *cr, char *lastMove, uint isFlipped) {
   uint ss = DEFAULT_SQUARE_SIZE;
   cairo_set_source_rgba(cr, squareColor.r, squareColor.g, squareColor.b,
                         squareColor.a);
-  if(isFlipped)
-    cairo_rectangle(cr, (7 - x1Coord) * ss, (y1Coord) * ss, ss, ss);
+  if (isFlipped)
+    cairo_rectangle(cr, (7 - x1Coord) * ss, (y1Coord)*ss, ss, ss);
   else
     cairo_rectangle(cr, x1Coord * ss, (7 - y1Coord) * ss, ss, ss);
   cairo_fill(cr);
-  if(isFlipped)
-    cairo_rectangle(cr, (7 - x2Coord) * ss, (y2Coord) * ss, ss, ss);
+  if (isFlipped)
+    cairo_rectangle(cr, (7 - x2Coord) * ss, (y2Coord)*ss, ss, ss);
   else
     cairo_rectangle(cr, x2Coord * ss, (7 - y2Coord) * ss, ss, ss);
   cairo_fill(cr);
@@ -254,7 +296,7 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
   GtkWidget *board = (GtkWidget *)data->widget;
   int fenActive = data->fenActive;
   // draw the chess board
-  drawBoard(cr, board, data->states->flip);
+  drawBoard(cr, board, data->states);
 
   // draw the chess pieces
   if (fenActive == 1) {
@@ -271,10 +313,27 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
   return FALSE;
 }
 
-static gboolean flip_board_callback(GtkWidget *FlipBoardButton, gpointer *data){
+static gboolean flip_board_callback(GtkWidget *FlipBoardButton,
+                                    gpointer *data) {
   IGNORE(FlipBoardButton);
-  board_info_t *dat = (board_info_t *) data;
+  board_info_t *dat = (board_info_t *)data;
   dat->states->flip = (dat->states->flip) ? FALSE : TRUE;
+  gtk_widget_queue_draw(dat->widget);
+  return FALSE;
+}
+
+static gboolean color_callback(GtkWidget *ColorButton, gpointer *data) {
+  IGNORE(ColorButton);
+  IGNORE(data);
+  //  GtkColorChooserDialog *a = gtk_color_chooser_dialog_new();
+  //  IGNORE(a);
+  return FALSE;
+}
+
+static gboolean coord_callback(GtkWidget *CoordButton, gpointer *data) {
+  IGNORE(CoordButton);
+  board_info_t *dat = (board_info_t *)data;
+  dat->states->coords = (dat->states->coords) ? FALSE : TRUE;
   gtk_widget_queue_draw(dat->widget);
   return FALSE;
 }

@@ -30,12 +30,12 @@ static gboolean check_escape(GtkWidget *widget, GdkEventKey *event,
   return FALSE;
 }
 
-static void initStates(state_vars_t *stateVars){
+static void initStates(state_vars_t *stateVars) {
   stateVars->flip = FALSE;
   stateVars->mode = BULLET;
   stateVars->undefPieces = FALSE;
   stateVars->evalBar = FALSE;
-  stateVars->coords = FALSE;
+  stateVars->coords = TRUE;
 }
 
 int run(GtkApplication *app, int argc, char *argv[]) {
@@ -45,7 +45,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   GtkWidget *window; //*playerName, *playerRating, *playerClock;
   display_output_t *display_output;
 
-  state_vars_t *states = (state_vars_t *) malloc(sizeof(state_vars_t));
+  state_vars_t *states = (state_vars_t *)malloc(sizeof(state_vars_t));
   initStates(states);
 
   window = gtk_application_window_new(app);

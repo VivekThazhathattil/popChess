@@ -22,23 +22,17 @@
 
 typedef unsigned int uint;
 
-enum MODES{
-  BULLET,
-  BLITZ,
-  RAPID,
-  TOP_RATED
-};
+enum MODES { BULLET, BLITZ, RAPID, TOP_RATED };
 
-typedef struct StateVars{
-/*  flip: flip board
-    mode: bullet/blitz/rapid/ultrabullet/top-rated (enum-ed )
-    undefPieces: undefended pieces
-    evalBar: show evaluation bar
-    coords: show board coordinates
-*/
-    uint flip, mode, undefPieces, evalBar, coords;
+typedef struct StateVars {
+  /*  flip: flip board
+      mode: bullet/blitz/rapid/ultrabullet/top-rated (enum-ed )
+      undefPieces: undefended pieces
+      evalBar: show evaluation bar
+      coords: show board coordinates
+  */
+  uint flip, mode, undefPieces, evalBar, coords;
 } state_vars_t;
-
 
 typedef struct _pair_t {
   uint x;
