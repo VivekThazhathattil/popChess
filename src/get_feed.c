@@ -23,7 +23,8 @@ void initCurl() {
   int j = 1;
   pthread_create(&id, NULL, curlHandler, &j);
 }
-void curlHandler() {
+void *curlHandler(void *optArg) {
+  IGNORE(optArg);
   CURL *curl_handle;
   CURLcode res;
 
@@ -52,7 +53,7 @@ void curlHandler() {
     curl_easy_cleanup(curl_handle);
     free(chunk.memory);
   }
-  return 0;
+  return NULL;
 }
 
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb,

@@ -7,7 +7,7 @@
 
 ## About the project
 
-This is a simple application that lets the user view the current top rated game from Lichess. As of now, even though it is in its nascent stage, it is able to show live Lichess TV with ease. But I intend to extent the features of this app to include live broadcast (like the upcoming World Chess Championship), show live display bar giving a qualitative estimation of the evaluation of the given position, and flexibility to customize the board to tune it to your liking.
+This is a simple application that lets the user view the current top rated game from Lichess. As of now, even though it is in its nascent stage, it is able to show live Lichess TV with ease. But I intend to extent the features of this app to include live broadcast (like the upcoming World Chess Championship), show evaluation bar, and flexibility to customize the board to tune it to your liking.
 
 ## Built With
 

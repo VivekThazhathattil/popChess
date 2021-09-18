@@ -32,7 +32,7 @@ struct mem_struct_t {
 };
 
 void initCurl();
-void curlHandler();
+void *curlHandler(void *);
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb,
                            void *userp);
 

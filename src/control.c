@@ -19,7 +19,10 @@
 
 lichess_data_t lichessData;
 
-static gboolean check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data){
+static gboolean check_escape(GtkWidget *widget, GdkEventKey *event,
+                             gpointer data) {
+  IGNORE(widget);
+  IGNORE(data);
   if (event->keyval == GDK_KEY_Escape) {
     gtk_main_quit();
     return TRUE;

@@ -40,18 +40,18 @@ typedef struct displayOutput {
   board_info_t *board_info;
 } display_output_t;
 
-typedef struct ButtonArray{
+typedef struct ButtonArray {
   GtkWidget *flipBoard, *selectMode, *selectColor, *selectPieces, *copyFEN;
-  GtkWidget *showUndefendedPieces, *showEvaluationBar, *copyImage;
+  GtkWidget *showUndefendedPieces, *showEvaluationBar, *copyImage, *showCoords;
 } button_array_t;
 
-GtkWidget *displayControl();
+display_output_t *displayControl();
 void updateCanvas(GtkWidget *, char *, char *, char *, char *, char *, char *);
 void makePlayerDetails(GtkWidget *, GtkWidget *, GtkWidget *, GtkWidget *,
-                       char *, char *, char *);
-void makeCoordinates(GtkWidget *);
-void makeArrows(GtkWidget *);
-void makeControlButtonsArray(GtkWidget *, button_array_t*);
+                       char *, char *);
+// void makeCoordinates(GtkWidget *);
+// void makeArrows(GtkWidget *);
+void makeControlButtonsArray(GtkWidget *, button_array_t *);
 void updateAllLabelTexts(lichess_data_t *);
 void updateClockLabelTexts(char *, char *);
 void updateLabelTexts(GtkWidget *, char *);
@@ -59,6 +59,7 @@ void load_svgs(char *, GError **);
 void showPieces(piece_info_t *, lichess_data_t *);
 void freeBoardInfo(board_info_t *);
 void freeDisplayOutput(display_output_t *);
+void freePieceInfo(piece_info_t *);
 void setFenInactive();
 
 #endif // include guard

@@ -3,9 +3,11 @@ CC ?= gcc
 SRC := ./src/main.c ./src/control.c ./src/display.c ./src/board.c ./src/get_feed.c ./src/parse_feed.c
 OBJ_DIR := ./obj
 OBJ_FILES := ./obj/*.o
-#CFLAGS := -Wall -Wextra -Werror -std=c99 -pedantic 
-CFLAGS := -Wall -Wextra -std=c99 -pedantic \
+CFLAGS := -Wall -Wextra -Werror -std=c99 -pedantic \
           -DPROG_NAME=\"$(PROG_NAME)\" -Iinclude/
+
+#CFLAGS := -Wall -Wextra -std=c99 -pedantic \
+#          -DPROG_NAME=\"$(PROG_NAME)\" -Iinclude/
 CFLAGS += $(shell pkg-config --cflags gtk+-3.0 librsvg-2.0)
 ifdef DEBUG
 	CFLAGS += -g

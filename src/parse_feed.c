@@ -18,23 +18,23 @@
 #include <parse_feed.h>
 
 static struct json_object_element_s *
-initJsonObjElement(struct json_value_s *rt) {
+initJsonObjElement(const struct json_value_s *rt) {
   assert(rt->type == json_type_object);
   struct json_object_s *object = (struct json_object_s *)rt->payload;
   struct json_object_element_s *a = object->start;
   return a;
 }
 
-static char *getKeyString(struct json_object_element_s *a) {
+static char *getKeyString(const struct json_object_element_s *a) {
   struct json_string_s *a_name = a->name;
-  return a_name->string;
+  return (char *)a_name->string;
 }
 
-static char *getValueString(struct json_object_element_s *a) {
+static char *getValueString(const struct json_object_element_s *a) {
   struct json_value_s *a_value = a->value;
   struct json_string_s *a_value_string =
       (struct json_string_s *)a_value->payload;
-  return a_value_string->string;
+  return (char *)a_value_string->string;
 }
 
 static struct json_object_element_s *
@@ -74,7 +74,6 @@ char *getLastJSON(char *feed) {
   char *lastCharPtr = strchr(feed, '\0');
   size_t totalStrLength = strlen(feed),
          currStrLength = 0; // + 1 to include '\0'
-  size_t returnCount = 0;
   while (currStrLength < totalStrLength) {
     //        if(*lastCharPtr == '\n' && *lastCharPtr == '\r')
     if (*lastCharPtr ==
@@ -193,11 +192,12 @@ uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
   struct json_array_element_s *firstArrayElement = array->start;
   struct json_value_s *whiteInfo = firstArrayElement->value;
   struct json_object_s *whiteData = (struct json_object_s *)whiteInfo->payload;
-  struct json_object_element_s *whiteColor, *whiteUser, *whiteRating,
-      *whiteUserName, *whiteUserTitle, *blackColor, *blackUser, *blackRating,
-      *blackUserName, *blackUserTitle;
+  struct json_object_element_s *whiteUser, *whiteRating, *whiteUserName,
+      *whiteUserTitle, *blackUser, *blackRating, *blackUserName,
+      *blackUserTitle;
+  // struct json_object_element_s *whiteColor, *blackColor;
 
-  whiteColor = navigateTo("color", whiteData->start);
+  //  whiteColor = navigateTo("color", whiteData->start);
   whiteUser = navigateTo("user", whiteData->start);
   whiteRating = navigateTo("rating", whiteData->start);
 
@@ -211,7 +211,7 @@ uint fillGameInfo(lichess_data_t *destData, char *unparsedData) {
   struct json_object_s *blackData =
       (struct json_object_s *)(blackInfo)->payload;
 
-  blackColor = navigateTo("color", blackData->start);
+  // blackColor = navigateTo("color", blackData->start);
   blackUser = navigateTo("user", blackData->start);
   blackRating = navigateTo("rating", blackData->start);
 
