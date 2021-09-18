@@ -33,6 +33,7 @@ typedef struct boardInfo {
   piece_info_t *piece_info;
   char *wClock, *bClock;
   char *lastMove;
+  state_vars_t *states;
 } board_info_t;
 
 typedef struct displayOutput {
@@ -45,13 +46,13 @@ typedef struct ButtonArray {
   GtkWidget *showUndefendedPieces, *showEvaluationBar, *copyImage, *showCoords;
 } button_array_t;
 
-display_output_t *displayControl();
+display_output_t *displayControl(state_vars_t *);
 void updateCanvas(GtkWidget *, char *, char *, char *, char *, char *, char *);
 void makePlayerDetails(GtkWidget *, GtkWidget *, GtkWidget *, GtkWidget *,
                        char *, char *);
 // void makeCoordinates(GtkWidget *);
 // void makeArrows(GtkWidget *);
-void makeControlButtonsArray(GtkWidget *, button_array_t *);
+void makeControlButtonsArray(GtkWidget *, button_array_t *, board_info_t *);
 void updateAllLabelTexts(lichess_data_t *);
 void updateClockLabelTexts(char *, char *);
 void updateLabelTexts(GtkWidget *, char *);

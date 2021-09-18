@@ -27,6 +27,8 @@ board_info_t *board_info;
 static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
                               board_info_t *data);
 
+static gboolean flip_board_callback(GtkWidget *, gpointer *);
+
 // bad practice: remove duplicates
 void updateAllLabelTexts(lichess_data_t *liDat) {
   updateLabelTexts(wNameWidget, liDat->white.name);
@@ -46,7 +48,7 @@ void freeBoardInfo(board_info_t *board_info) { free(board_info); }
 
 void freeDisplayOutput(display_output_t *output) { free(output); }
 
-display_output_t *displayControl() {
+display_output_t *displayControl(state_vars_t *states) {
   GtkWidget *canvas, *outVBox, *buttonArray, *board, *whitePlayerDetails,
       *blackPlayerDetails;
   display_output_t *output;
@@ -71,6 +73,8 @@ display_output_t *displayControl() {
   board_info->widget = board;
   board_info->fenActive = 0;
   board_info->piece_info = (piece_info_t *)calloc(32, sizeof(piece_info_t));
+  board_info->states = states;
+
   g_signal_connect(board_info->widget, "draw", G_CALLBACK(draw_callback),
                    board_info);
 
@@ -92,7 +96,7 @@ display_output_t *displayControl() {
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
   gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
 
-  makeControlButtonsArray(buttonArray, &buttons);
+  makeControlButtonsArray(buttonArray, &buttons, board_info);
   gtk_box_pack_start(GTK_BOX(outVBox), canvas, 1, 1, 0);
   gtk_box_pack_start(GTK_BOX(outVBox), buttonArray, 1, 1, 0);
 
@@ -138,7 +142,7 @@ static GtkWidget *gtkImageButton(char *imageLocation) {
   return button;
 }
 
-void makeControlButtonsArray(GtkWidget *array, button_array_t *btns) {
+void makeControlButtonsArray(GtkWidget *array, button_array_t *btns, board_info_t *data) {
   btns->flipBoard = gtkImageButton("res/flip.png");
   btns->selectMode = gtkImageButton("res/mode.png");
   btns->selectColor = gtkImageButton("res/color.png");
@@ -148,6 +152,8 @@ void makeControlButtonsArray(GtkWidget *array, button_array_t *btns) {
   btns->showUndefendedPieces = gtkImageButton("res/undefended.png");
   btns->showEvaluationBar = gtkImageButton("res/evalbar.png");
   btns->showCoords = gtkImageButton("res/coords.png");
+
+  g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked", G_CALLBACK(flip_board_callback), data);
 
   gtk_box_pack_start(GTK_BOX(array), btns->flipBoard, 1, 0, 0);
   gtk_box_pack_start(GTK_BOX(array), btns->selectMode, 1, 0, 0);
@@ -169,10 +175,10 @@ static void assignColors(colors_t *color, const double r, const double g,
   color->a = a / 255;
 }
 
-static void drawBoard(cairo_t *cr, GtkWidget *data) {
+static void drawBoard(cairo_t *cr, GtkWidget *data, uint isFlipped) {
   colors_t darkSquares, lightSquares;
-  assignColors(&darkSquares, 240, 217, 181, 255);
-  assignColors(&lightSquares, 181, 136, 99, 255);
+  assignColors(isFlipped ? &lightSquares : &darkSquares, 240, 217, 181, 255);
+  assignColors(isFlipped ? &darkSquares  : &lightSquares, 181, 136, 99, 255);
   sizes_t ss = getSquareSizes(data);
   for (uint i = 0; i < NUM_SQUARES_Y; ++i) {
     for (uint j = 0; j < NUM_SQUARES_X; ++j) {
@@ -190,7 +196,7 @@ static void drawBoard(cairo_t *cr, GtkWidget *data) {
   }
 }
 
-static void drawPieces(cairo_t *cr, piece_info_t *pieces) {
+static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
   // printf("drawPieces?: %d\n", pieces[0].totalCount);
   if (pieces[0].totalCount > 32)
     return;
@@ -199,18 +205,24 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces) {
   RsvgHandle *piece_image;
   for (uint i = 0; i < pieces[0].totalCount; ++i) {
     // printf("PINF: %d, %d \n", pieces[i].x, pieces[i].y);
-    cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
+    if(isFlipped)
+      cairo_translate(cr, (7 - pieces[i].x) * ss, (pieces[i].y) * ss);
+    else
+      cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
     cairo_scale(cr, scale, scale);
     // printf("PINF: %c, %c \n", pieces[i].color, pieces[i].type);
     piece_image = piece_images[(pieces[i].color == 'b' ? 0 : 1)]
                               [getPieceType(pieces[i].type)];
     rsvg_handle_render_cairo(piece_image, cr);
     cairo_scale(cr, 1 / scale, 1 / scale);
-    cairo_translate(cr, -pieces[i].x * ss, -(7 - pieces[i].y) * ss);
+    if(isFlipped)
+      cairo_translate(cr, - (7 - pieces[i].x) * ss, - (pieces[i].y) * ss);
+    else
+      cairo_translate(cr, - pieces[i].x * ss, -(7 - pieces[i].y) * ss);
   }
 }
 
-static void highlightLastMove(cairo_t *cr, char *lastMove) {
+static void highlightLastMove(cairo_t *cr, char *lastMove, uint isFlipped) {
   uint x1Coord, y1Coord, x2Coord, y2Coord;
   if (!getCoordinatesFromMove(lastMove, &x1Coord, &y1Coord, &x2Coord,
                               &y2Coord)) {
@@ -224,9 +236,15 @@ static void highlightLastMove(cairo_t *cr, char *lastMove) {
   uint ss = DEFAULT_SQUARE_SIZE;
   cairo_set_source_rgba(cr, squareColor.r, squareColor.g, squareColor.b,
                         squareColor.a);
-  cairo_rectangle(cr, x1Coord * ss, (7 - y1Coord) * ss, ss, ss);
+  if(isFlipped)
+    cairo_rectangle(cr, (7 - x1Coord) * ss, (y1Coord) * ss, ss, ss);
+  else
+    cairo_rectangle(cr, x1Coord * ss, (7 - y1Coord) * ss, ss, ss);
   cairo_fill(cr);
-  cairo_rectangle(cr, x2Coord * ss, (7 - y2Coord) * ss, ss, ss);
+  if(isFlipped)
+    cairo_rectangle(cr, (7 - x2Coord) * ss, (y2Coord) * ss, ss, ss);
+  else
+    cairo_rectangle(cr, x2Coord * ss, (7 - y2Coord) * ss, ss, ss);
   cairo_fill(cr);
 }
 
@@ -236,20 +254,28 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
   GtkWidget *board = (GtkWidget *)data->widget;
   int fenActive = data->fenActive;
   // draw the chess board
-  drawBoard(cr, board);
+  drawBoard(cr, board, data->states->flip);
 
   // draw the chess pieces
   if (fenActive == 1) {
     if (data->lastMove) {
-      highlightLastMove(cr, data->lastMove);
+      highlightLastMove(cr, data->lastMove, data->states->flip);
       // printf("callback?: %d\n", board_info->piece_info[0].totalCount);
       if (data->wClock && data->bClock)
         updateClockLabelTexts(data->wClock, data->bClock);
     }
     piece_info_t *pieces = (piece_info_t *)data->piece_info;
-    drawPieces(cr, pieces);
+    drawPieces(cr, pieces, data->states->flip);
   }
 
+  return FALSE;
+}
+
+static gboolean flip_board_callback(GtkWidget *FlipBoardButton, gpointer *data){
+  IGNORE(FlipBoardButton);
+  board_info_t *dat = (board_info_t *) data;
+  dat->states->flip = (dat->states->flip) ? FALSE : TRUE;
+  gtk_widget_queue_draw(dat->widget);
   return FALSE;
 }
 
