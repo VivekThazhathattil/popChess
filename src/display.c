@@ -37,9 +37,30 @@ void updateAllLabelTexts(lichess_data_t *liDat) {
   updateLabelTexts(bRatingWidget, liDat->black.rating);
 }
 
+static void formatIndividualTimeString(char *t, char *T){
+  int intT = atoi(T), secs, mins;
+  //int intBT = atoi(bT);
+  secs = intT % 60; 
+  mins = intT * 1.0 / 60;
+  if(mins > 99){
+    printf("Error: Time control too long\n");
+    sprintf(t, "00:00");
+  }
+  else{
+    sprintf(t, "%02d:%02d", mins, secs);
+  }
+}
+
+static void formatTimeStrings(char *wt, char *bt, char *wT, char *bT){
+  formatIndividualTimeString(wt, wT);
+  formatIndividualTimeString(bt, bT);
+}
+
 void updateClockLabelTexts(char *wTime, char *bTime) {
-  updateLabelTexts(wTimeWidget, wTime);
-  updateLabelTexts(bTimeWidget, bTime);
+  char wt[6], bt[6];
+  formatTimeStrings(wt, bt, wTime, bTime);
+  updateLabelTexts(wTimeWidget, wt);
+  updateLabelTexts(bTimeWidget, bt);
 }
 
 void freePieceInfo(piece_info_t *piece_info) { free(piece_info); }
