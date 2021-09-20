@@ -156,24 +156,25 @@ void makePlayerDetails(GtkWidget *playerDetails, GtkWidget *name,
 //
 // void makeArrows(GtkWidget *arrows) {}
 
-static GtkWidget *gtkImageButton(char *imageLocation) {
+static GtkWidget *gtkImageButton(char *imageLocation, char *tooltipText) {
   GtkWidget *image = gtk_image_new_from_file(imageLocation);
   GtkWidget *button = gtk_button_new();
+  gtk_widget_set_tooltip_text(button, tooltipText);
   gtk_button_set_image(GTK_BUTTON(button), image);
   return button;
 }
 
 void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
                              board_info_t *data) {
-  btns->flipBoard = gtkImageButton("res/flip.png");
-  btns->selectMode = gtkImageButton("res/mode.png");
-  btns->selectColor = gtkImageButton("res/color.png");
-  btns->selectPieces = gtkImageButton("res/piece.png");
-  btns->copyFEN = gtkImageButton("res/fencopy.png");
-  btns->copyImage = gtkImageButton("res/imgcopy.png");
-  btns->showUndefendedPieces = gtkImageButton("res/undefended.png");
-  btns->showEvaluationBar = gtkImageButton("res/evalbar.png");
-  btns->showCoords = gtkImageButton("res/coords.png");
+  btns->flipBoard = gtkImageButton("res/flip.png", "Flip board");
+  btns->selectMode = gtkImageButton("res/mode.png", "Rapid/blitz/bullet/Top Rated Mode");
+  btns->selectColor = gtkImageButton("res/color.png", "Select square colors");
+  btns->selectPieces = gtkImageButton("res/piece.png", "Select piece type");
+  btns->copyFEN = gtkImageButton("res/fencopy.png", "Copy current FEN");
+  btns->copyImage = gtkImageButton("res/imgcopy.png", "Copy image to clipboard");
+  btns->showUndefendedPieces = gtkImageButton("res/undefended.png", "Show/hide undefended pieces");
+  btns->showEvaluationBar = gtkImageButton("res/evalbar.png", "Show/hide Evalutation bar");
+  btns->showCoords = gtkImageButton("res/coords.png", "Show/hide board coordinates");
 
   g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked",
                    G_CALLBACK(flip_board_callback), data);
