@@ -7,6 +7,7 @@
 * sometimes pieces are displayed as their tiny versions. Don't know why it happens
 * Need some mechanism in place to recover from broken network connection
 * Fix escape button exit seg fault
+* fix bad svgs and cairo panic errors
 
 ## enhancements:
 

@@ -24,14 +24,50 @@ typedef unsigned int uint;
 
 enum MODES { BULLET, BLITZ, RAPID, TOP_RATED };
 
+enum PIECES {
+  ALPHA,
+  CALIFORNIA,
+  CARDINAL,
+  CBURNETT,
+  CHESS7,
+  CHESSNUT,
+  COMPANION,
+  DUBROVNY,
+  FANTASY,
+  FRESCA,
+  GIOCO,
+  GOVERNOR,
+  HORSEY,
+  ICPIECES,
+  KOSAL,
+  LEIPZIG,
+  LETTER,
+  LIBRA,
+  LIST,
+  MAESTRO,
+  MERIDA,
+  MONO,
+  PIROUETTI,
+  PIXEL,
+  REILLYCRAIG,
+  RIOHACHA,
+  SHAPES,
+  SPATIAL,
+  STAUNTY,
+  TATIANA,
+  LAST_NULL // doesn't correspond to anything. It just exists for checking if
+            // enum's end has reached
+};
+
 typedef struct StateVars {
   /*  flip: flip board
       mode: bullet/blitz/rapid/ultrabullet/top-rated (enum-ed )
       undefPieces: undefended pieces
       evalBar: show evaluation bar
       coords: show board coordinates
+      pieces: type of piece
   */
-  uint flip, mode, undefPieces, evalBar, coords;
+  uint flip, mode, undefPieces, evalBar, coords, pieces;
 } state_vars_t;
 
 typedef struct _pair_t {

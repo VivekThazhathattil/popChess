@@ -62,5 +62,6 @@ void freeBoardInfo(board_info_t *);
 void freeDisplayOutput(display_output_t *);
 void freePieceInfo(piece_info_t *);
 void setFenInactive();
+void clean_rsvg(void);
 
 #endif // include guard

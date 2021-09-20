@@ -3,6 +3,7 @@
 
 <p float="left">
 <img src="img/progress1.png" width="400" height="400"/>
+<img src="img/progress2.png" width="400" height="400"/>
 </p>
 
 ## About the project
@@ -21,6 +22,7 @@ This is a simple application that lets the user view the current top rated game 
 I've only tested this app on my Linux system (ArchLinux Latest version). I believe that as long as you have the following prerequisites, you can get this app working on your system.
 
 ### Prerequisites
+* `gcc` compiler
 * `libcurl` (I've tested with `libcurl 7.78.0`; The version number can be obtained by `curl-config --version`)
 * `GTK3+` (I've tested with `GTK 3.24.30`; The version number may be obtained using `gtk-launch --version`)
 * `librsvg`

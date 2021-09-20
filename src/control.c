@@ -36,6 +36,7 @@ static void initStates(state_vars_t *stateVars) {
   stateVars->undefPieces = FALSE;
   stateVars->evalBar = FALSE;
   stateVars->coords = TRUE;
+  stateVars->pieces = ALPHA;
 }
 
 int run(GtkApplication *app, int argc, char *argv[]) {
@@ -68,6 +69,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   freeBoardInfo(display_output->board_info);
   freeDisplayOutput(display_output);
   freeLichessData();
+  clean_rsvg();
   return 1;
 }
 

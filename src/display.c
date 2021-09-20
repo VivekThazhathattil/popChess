@@ -28,6 +28,7 @@ static gboolean draw_callback(GtkWidget *, cairo_t *, board_info_t *);
 static gboolean flip_board_callback(GtkWidget *, gpointer *);
 static gboolean color_callback(GtkWidget *, gpointer *);
 static gboolean coord_callback(GtkWidget *, gpointer *);
+static gboolean select_pieces_callback(GtkWidget *, gpointer *);
 
 // bad practice: remove duplicates
 void updateAllLabelTexts(lichess_data_t *liDat) {
@@ -37,21 +38,20 @@ void updateAllLabelTexts(lichess_data_t *liDat) {
   updateLabelTexts(bRatingWidget, liDat->black.rating);
 }
 
-static void formatIndividualTimeString(char *t, char *T){
+static void formatIndividualTimeString(char *t, char *T) {
   int intT = atoi(T), secs, mins;
-  //int intBT = atoi(bT);
-  secs = intT % 60; 
+  // int intBT = atoi(bT);
+  secs = intT % 60;
   mins = intT * 1.0 / 60;
-  if(mins > 99){
+  if (mins > 99) {
     printf("Error: Time control too long\n");
     sprintf(t, "00:00");
-  }
-  else{
+  } else {
     sprintf(t, "%02d:%02d", mins, secs);
   }
 }
 
-static void formatTimeStrings(char *wt, char *bt, char *wT, char *bT){
+static void formatTimeStrings(char *wt, char *bt, char *wT, char *bT) {
   formatIndividualTimeString(wt, wT);
   formatIndividualTimeString(bt, bT);
 }
@@ -69,15 +69,30 @@ void freeBoardInfo(board_info_t *board_info) { free(board_info); }
 
 void freeDisplayOutput(display_output_t *output) { free(output); }
 
+void clean_rsvg(void) {
+  for (uint i = 0; i < 2; ++i) {
+    for (uint j = 0; j < 6; ++j) {
+      if (piece_images[i][j] != NULL)
+        g_object_unref(piece_images[i][j]);
+    }
+  }
+  return;
+}
+
+static void set_SVG(char *fileName) {
+  char filePath[50];
+  sprintf(filePath, "pieces/lichess/%s/", fileName);
+  GError *err = NULL;
+  load_svgs(filePath, &err);
+}
+
 display_output_t *displayControl(state_vars_t *states) {
   GtkWidget *canvas, *outVBox, *buttonArray, *board, *whitePlayerDetails,
       *blackPlayerDetails;
   display_output_t *output;
   button_array_t buttons;
 
-  char *piece_svgs = "pieces/merida/";
-  GError *err = NULL;
-  load_svgs(piece_svgs, &err);
+  set_SVG("alpha");
 
   canvas = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   outVBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -167,14 +182,19 @@ static GtkWidget *gtkImageButton(char *imageLocation, char *tooltipText) {
 void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
                              board_info_t *data) {
   btns->flipBoard = gtkImageButton("res/flip.png", "Flip board");
-  btns->selectMode = gtkImageButton("res/mode.png", "Rapid/blitz/bullet/Top Rated Mode");
+  btns->selectMode =
+      gtkImageButton("res/mode.png", "Rapid/blitz/bullet/Top Rated Mode");
   btns->selectColor = gtkImageButton("res/color.png", "Select square colors");
   btns->selectPieces = gtkImageButton("res/piece.png", "Select piece type");
   btns->copyFEN = gtkImageButton("res/fencopy.png", "Copy current FEN");
-  btns->copyImage = gtkImageButton("res/imgcopy.png", "Copy image to clipboard");
-  btns->showUndefendedPieces = gtkImageButton("res/undefended.png", "Show/hide undefended pieces");
-  btns->showEvaluationBar = gtkImageButton("res/evalbar.png", "Show/hide Evalutation bar");
-  btns->showCoords = gtkImageButton("res/coords.png", "Show/hide board coordinates");
+  btns->copyImage =
+      gtkImageButton("res/imgcopy.png", "Copy image to clipboard");
+  btns->showUndefendedPieces =
+      gtkImageButton("res/undefended.png", "Show/hide undefended pieces");
+  btns->showEvaluationBar =
+      gtkImageButton("res/evalbar.png", "Show/hide Evalutation bar");
+  btns->showCoords =
+      gtkImageButton("res/coords.png", "Show/hide board coordinates");
 
   g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked",
                    G_CALLBACK(flip_board_callback), data);
@@ -182,6 +202,8 @@ void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
                    G_CALLBACK(color_callback), data);
   g_signal_connect(GTK_BUTTON(btns->showCoords), "clicked",
                    G_CALLBACK(coord_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->selectPieces), "clicked",
+                   G_CALLBACK(select_pieces_callback), data);
 
   gtk_box_pack_start(GTK_BOX(array), btns->flipBoard, 1, 0, 0);
   gtk_box_pack_start(GTK_BOX(array), btns->selectMode, 1, 0, 0);
@@ -267,6 +289,8 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
   double ss = DEFAULT_SQUARE_SIZE;
   double scale = 0.0048 * DEFAULT_BOARD_SIZE / ss;
   RsvgHandle *piece_image;
+  RsvgDimensionData dimensions;
+  double x_factor, y_factor, scale_factor;
   for (uint i = 0; i < pieces[0].totalCount; ++i) {
     // printf("PINF: %d, %d \n", pieces[i].x, pieces[i].y);
     if (isFlipped)
@@ -274,11 +298,17 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
     else
       cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
     cairo_scale(cr, scale, scale);
+    cairo_scale(cr, 1 / scale, 1 / scale);
     // printf("PINF: %c, %c \n", pieces[i].color, pieces[i].type);
     piece_image = piece_images[(pieces[i].color == 'b' ? 0 : 1)]
                               [getPieceType(pieces[i].type)];
+    rsvg_handle_get_dimensions(piece_image, &dimensions);
+    x_factor = (double)ss / dimensions.width;
+    y_factor = (double)ss / dimensions.height;
+    scale_factor = MIN(x_factor, y_factor);
+    cairo_scale(cr, scale_factor, scale_factor);
     rsvg_handle_render_cairo(piece_image, cr);
-    cairo_scale(cr, 1 / scale, 1 / scale);
+    cairo_scale(cr, 1 / scale_factor, 1 / scale_factor);
     if (isFlipped)
       cairo_translate(cr, -(7 - pieces[i].x) * ss, -(pieces[i].y) * ss);
     else
@@ -360,21 +390,132 @@ static gboolean coord_callback(GtkWidget *CoordButton, gpointer *data) {
   return FALSE;
 }
 
+static gboolean select_pieces_callback(GtkWidget *PiecesButton,
+                                       gpointer *data) {
+  IGNORE(PiecesButton);
+  board_info_t *dat = (board_info_t *)data;
+  dat->states->pieces = dat->states->pieces + 1;
+  if (dat->states->pieces >= LAST_NULL) {
+    dat->states->pieces = ALPHA;
+  }
+  printf("%d\n", dat->states->pieces);
+
+  switch (dat->states->pieces) {
+  case ALPHA:
+    set_SVG("alpha");
+    break;
+  case CALIFORNIA:
+    set_SVG("california");
+    break;
+  case CARDINAL:
+    set_SVG("cardinal");
+    break;
+  case CBURNETT:
+    set_SVG("cburnett");
+    break;
+  case CHESS7:
+    set_SVG("chess7");
+    break;
+  case CHESSNUT:
+    set_SVG("chessnut");
+    break;
+  case COMPANION:
+    set_SVG("companion");
+    break;
+  case DUBROVNY:
+    set_SVG("dubrovny");
+    break;
+  case FANTASY:
+    set_SVG("fantasy");
+    break;
+  case FRESCA:
+    set_SVG("fresca");
+    break;
+  case GIOCO:
+    set_SVG("gioco");
+    break;
+  case GOVERNOR:
+    set_SVG("governor");
+    break;
+  case HORSEY:
+    set_SVG("horsey");
+    break;
+  case ICPIECES:
+    set_SVG("icpieces");
+    break;
+  case KOSAL:
+    set_SVG("kosal");
+    break;
+  case LEIPZIG:
+    set_SVG("leipzig");
+    break;
+  case LETTER:
+    set_SVG("letter");
+    break;
+  case LIBRA:
+    set_SVG("libra");
+    break;
+  case LIST:
+    set_SVG("list");
+    break;
+  case MAESTRO:
+    set_SVG("maestro");
+    break;
+  case MERIDA:
+    set_SVG("merida");
+    break;
+  case MONO:
+    set_SVG("mono");
+    break;
+  case PIROUETTI:
+    set_SVG("pirouetti");
+    break;
+  case PIXEL:
+    set_SVG("pixel");
+    break;
+  case REILLYCRAIG:
+    set_SVG("reillycraig");
+    break;
+  case RIOHACHA:
+    set_SVG("riohacha");
+    break;
+  case SHAPES:
+    set_SVG("shapes");
+    break;
+  case SPATIAL:
+    set_SVG("spatial");
+    break;
+  case STAUNTY:
+    set_SVG("staunty");
+    break;
+  case TATIANA:
+    set_SVG("tatiana");
+    break;
+  default:
+    set_SVG("horsey");
+  }
+
+  gtk_widget_queue_draw(dat->widget);
+  return FALSE;
+}
+
 void load_svgs(char *dir, GError **err) {
   uint len = strlen(dir) + 8; // e.g.: "w_k.svg\0"
   char str[len];
   char piece_letters[] = "pnbrqk";
   char side_letters[] = "bw";
 
+  clean_rsvg();
   for (uint i = 0; i < 2; i++) {
     char side = side_letters[i];
-
     for (uint j = 0; piece_letters[j] != '\0'; j++) {
       sprintf(str, "%s%c_%c.svg", dir, side, piece_letters[j]);
 
       piece_images[i][j] = rsvg_handle_new_from_file(str, err);
-      if (*err != NULL)
+      if (*err != NULL) {
+        printf("Error encountered while loading the SVGs.\n");
         return;
+      }
     }
   }
 }
