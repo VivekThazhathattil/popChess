@@ -34,6 +34,7 @@ typedef struct boardInfo {
   char *wClock, *bClock;
   char *lastMove;
   state_vars_t *states;
+  colors_t darkSquareColor, lightSquareColor;
 } board_info_t;
 
 typedef struct displayOutput {
@@ -63,5 +64,8 @@ void freeDisplayOutput(display_output_t *);
 void freePieceInfo(piece_info_t *);
 void setFenInactive();
 void clean_rsvg(void);
+void assignColors(colors_t *color, const double, const double, const double, const double);
+void colors_t_to_GdkRGBA(const colors_t* , GdkRGBA *);
+void GdkRGBA_to_colors_t(const GdkRGBA *, colors_t* );
 
 #endif // include guard

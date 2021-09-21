@@ -26,9 +26,11 @@ board_info_t *board_info;
 
 static gboolean draw_callback(GtkWidget *, cairo_t *, board_info_t *);
 static gboolean flip_board_callback(GtkWidget *, gpointer *);
-static gboolean color_callback(GtkWidget *, gpointer *);
 static gboolean coord_callback(GtkWidget *, gpointer *);
 static gboolean select_pieces_callback(GtkWidget *, gpointer *);
+static gboolean select_color_callback(GtkWidget *, gpointer *);
+static gboolean color_button_pressed_callback(GtkWidget *, gpointer *);
+static gboolean exit_color_window_callback(GtkWidget *, gpointer *);
 
 // bad practice: remove duplicates
 void updateAllLabelTexts(lichess_data_t *liDat) {
@@ -49,6 +51,22 @@ static void formatIndividualTimeString(char *t, char *T) {
   } else {
     sprintf(t, "%02d:%02d", mins, secs);
   }
+}
+
+void colors_t_to_GdkRGBA(const colors_t* src, GdkRGBA *dest){
+  dest->red = src->r;
+  dest->green = src->g;
+  dest->blue = src->b;
+  dest->alpha = src->a;
+  return;
+}
+
+void GdkRGBA_to_colors_t(const GdkRGBA *src, colors_t* dest){
+  dest->r = src->red;
+  dest->g = src->green;
+  dest->b = src->blue;
+  dest->a = src->blue;
+  return;
 }
 
 static void formatTimeStrings(char *wt, char *bt, char *wT, char *bT) {
@@ -110,6 +128,8 @@ display_output_t *displayControl(state_vars_t *states) {
   board_info->fenActive = 0;
   board_info->piece_info = (piece_info_t *)calloc(32, sizeof(piece_info_t));
   board_info->states = states;
+  assignColors(&(board_info->darkSquareColor), 240, 217, 181, 255); //default colors
+  assignColors(&(board_info->lightSquareColor), 181, 136, 99, 255);
 
   g_signal_connect(board_info->widget, "draw", G_CALLBACK(draw_callback),
                    board_info);
@@ -198,12 +218,12 @@ void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
 
   g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked",
                    G_CALLBACK(flip_board_callback), data);
-  g_signal_connect(GTK_BUTTON(btns->selectColor), "clicked",
-                   G_CALLBACK(color_callback), data);
   g_signal_connect(GTK_BUTTON(btns->showCoords), "clicked",
                    G_CALLBACK(coord_callback), data);
   g_signal_connect(GTK_BUTTON(btns->selectPieces), "clicked",
                    G_CALLBACK(select_pieces_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->selectColor), "clicked",
+                   G_CALLBACK(select_color_callback), data);
 
   gtk_box_pack_start(GTK_BOX(array), btns->flipBoard, 1, 0, 0);
   gtk_box_pack_start(GTK_BOX(array), btns->selectMode, 1, 0, 0);
@@ -216,7 +236,7 @@ void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
   gtk_box_pack_start(GTK_BOX(array), btns->showCoords, 1, 0, 0);
 }
 
-static void assignColors(colors_t *color, const double r, const double g,
+void assignColors(colors_t *color, const double r, const double g,
                          const double b, const double a) {
   // colors assumed to be in (r,g,b) format : (0,0,0) -> (255, 255, 255)
   color->r = r / 255;
@@ -247,12 +267,10 @@ static void showRankNumbers(colors_t *squareColor, cairo_t *cr, uint i, uint j,
   cairo_restore(cr);
 }
 
-static void drawBoard(cairo_t *cr, GtkWidget *data, state_vars_t *statesVar) {
+static void drawBoard(cairo_t *cr, GtkWidget *data, state_vars_t *statesVar, colors_t *darkColor, colors_t *lightColor) {
   colors_t darkSquares, lightSquares;
-  assignColors(statesVar->flip ? &lightSquares : &darkSquares, 240, 217, 181,
-               255);
-  assignColors(statesVar->flip ? &darkSquares : &lightSquares, 181, 136, 99,
-               255);
+  darkSquares = *darkColor;
+  lightSquares = *lightColor;
   sizes_t ss = getSquareSizes(data);
   for (uint i = 0; i < NUM_SQUARES_X; ++i) {
     for (uint j = 0; j < NUM_SQUARES_Y; ++j) {
@@ -283,7 +301,6 @@ static void drawBoard(cairo_t *cr, GtkWidget *data, state_vars_t *statesVar) {
 }
 
 static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
-  // printf("drawPieces?: %d\n", pieces[0].totalCount);
   if (pieces[0].totalCount > 32)
     return;
   double ss = DEFAULT_SQUARE_SIZE;
@@ -292,14 +309,12 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
   RsvgDimensionData dimensions;
   double x_factor, y_factor, scale_factor;
   for (uint i = 0; i < pieces[0].totalCount; ++i) {
-    // printf("PINF: %d, %d \n", pieces[i].x, pieces[i].y);
     if (isFlipped)
       cairo_translate(cr, (7 - pieces[i].x) * ss, (pieces[i].y) * ss);
     else
       cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
     cairo_scale(cr, scale, scale);
     cairo_scale(cr, 1 / scale, 1 / scale);
-    // printf("PINF: %c, %c \n", pieces[i].color, pieces[i].type);
     piece_image = piece_images[(pieces[i].color == 'b' ? 0 : 1)]
                               [getPieceType(pieces[i].type)];
     rsvg_handle_get_dimensions(piece_image, &dimensions);
@@ -323,8 +338,6 @@ static void highlightLastMove(cairo_t *cr, char *lastMove, uint isFlipped) {
     printf("Error: Last move \'%s\' not recognized.\n", lastMove);
     return;
   }
-
-  // printf("%d, %d, %d, %d", x1Coord, y1Coord, x2Coord, y2Coord);
   colors_t squareColor;
   assignColors(&squareColor, 255, 165, 0, 150);
   uint ss = DEFAULT_SQUARE_SIZE;
@@ -348,13 +361,12 @@ static gboolean draw_callback(GtkWidget *drawing_area, cairo_t *cr,
   GtkWidget *board = (GtkWidget *)data->widget;
   int fenActive = data->fenActive;
   // draw the chess board
-  drawBoard(cr, board, data->states);
+  drawBoard(cr, board, data->states, &(data->darkSquareColor), &(data->lightSquareColor));
 
   // draw the chess pieces
   if (fenActive == 1) {
     if (data->lastMove) {
       highlightLastMove(cr, data->lastMove, data->states->flip);
-      // printf("callback?: %d\n", board_info->piece_info[0].totalCount);
       if (data->wClock && data->bClock)
         updateClockLabelTexts(data->wClock, data->bClock);
     }
@@ -374,14 +386,6 @@ static gboolean flip_board_callback(GtkWidget *FlipBoardButton,
   return FALSE;
 }
 
-static gboolean color_callback(GtkWidget *ColorButton, gpointer *data) {
-  IGNORE(ColorButton);
-  IGNORE(data);
-  //  GtkColorChooserDialog *a = gtk_color_chooser_dialog_new();
-  //  IGNORE(a);
-  return FALSE;
-}
-
 static gboolean coord_callback(GtkWidget *CoordButton, gpointer *data) {
   IGNORE(CoordButton);
   board_info_t *dat = (board_info_t *)data;
@@ -398,7 +402,7 @@ static gboolean select_pieces_callback(GtkWidget *PiecesButton,
   if (dat->states->pieces >= LAST_NULL) {
     dat->states->pieces = ALPHA;
   }
-  printf("%d\n", dat->states->pieces);
+  //printf("%d\n", dat->states->pieces);
 
   switch (dat->states->pieces) {
   case ALPHA:
@@ -496,6 +500,71 @@ static gboolean select_pieces_callback(GtkWidget *PiecesButton,
   }
 
   gtk_widget_queue_draw(dat->widget);
+  return FALSE;
+}
+
+static GtkWidget* setColorWindowProps(GtkWidget *win){
+  gtk_window_set_default_size(GTK_WINDOW(win), 400, 200);
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
+  return win;
+}
+
+static void populateHContainer(colors_t *squareColor, GtkWidget *hContainer, const char *labelText){
+  GdkRGBA *color = (GdkRGBA *)malloc(sizeof(GdkRGBA));
+  colors_t_to_GdkRGBA(squareColor, color);
+  GtkWidget *vContainer, *colorButton, *label;
+  vContainer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+  colorButton = gtk_color_button_new_with_rgba(color);
+  g_signal_connect(colorButton, "color-set", G_CALLBACK(color_button_pressed_callback), squareColor);
+  label = gtk_label_new(labelText);
+  gtk_box_pack_start(GTK_BOX(vContainer), label, 1, 1, 0);
+  gtk_box_pack_start(GTK_BOX(vContainer), colorButton, 1, 1, 0);
+  gtk_box_pack_start(GTK_BOX(hContainer), vContainer, 1, 1, 0);
+
+  gdk_rgba_free(color);
+  return;
+}
+
+static GtkWidget *showColorWindow(gpointer *data){
+  GtkWidget *colorWindow;
+  colorWindow = gtk_window_new(GTK_WINDOW_POPUP);
+  setColorWindowProps(colorWindow);
+  board_info_t *dat = (board_info_t *)data;
+  GtkWidget *hContainer, *exitButton;
+  hContainer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+  exitButton = gtk_button_new_with_label("Exit");
+  g_signal_connect(GTK_BUTTON(exitButton), "clicked",
+                   G_CALLBACK(exit_color_window_callback), colorWindow);
+  populateHContainer(&(dat->lightSquareColor), hContainer,"Light square color");
+  populateHContainer(&(dat->darkSquareColor), hContainer, "Dark square color");
+  gtk_box_pack_start(GTK_BOX(hContainer), exitButton, 1,1,0);
+  gtk_container_add(GTK_CONTAINER(colorWindow), hContainer);
+  gtk_widget_show_all(colorWindow);
+  return colorWindow;
+}
+
+static gboolean select_color_callback(GtkWidget *ColorButton,
+                                       gpointer *data) {
+  IGNORE(ColorButton);
+  GtkWidget *win;
+  if( (win = showColorWindow(data)) == NULL){
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static gboolean color_button_pressed_callback(GtkWidget *ColorButton, gpointer *data){
+  colors_t *destColor= (colors_t *)data;
+  GdkRGBA *srcColor = (GdkRGBA *)malloc(sizeof(GdkRGBA));
+  gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(ColorButton), srcColor);
+  GdkRGBA_to_colors_t(srcColor, destColor);
+  //gdk_rgba_free(srcColor);
+  return FALSE;
+}
+
+static gboolean exit_color_window_callback(GtkWidget *ExitButton, gpointer *window){
+  IGNORE(ExitButton);
+  gtk_widget_destroy(GTK_WIDGET(window));
   return FALSE;
 }
 

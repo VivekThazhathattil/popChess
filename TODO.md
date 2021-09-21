@@ -20,16 +20,15 @@
 * broadcasts (olympiad)
 * sounds
 * increase the font size of all text labels
-* button to flip board
+* ~~button to flip board~~
 * button to enable/disable sound
 * text entry field to follow a player's games
 * drop down menu to select which top mode to watch (rapid/bullet/ultrabullet ...)
-* colorwheel to choose the board colors
+* ~~colorwheel to choose the board colors~~
 * ~~highlight last move squares~~
 * button to enable/disable arrows
-* button to enable/disable last move squares
 * Try to make it a transparent widget if possible
-* Drop down menu to select pieces
+* ~~Change pieces~~
 * Integrate a chess-engine to evaluate the current position
 * Create bar display similar to lichess and chess.com
 * make a status icon in the system tray which when hovered shows the ongoing game in a tiny window

@@ -43,7 +43,7 @@ int run(GtkApplication *app, int argc, char *argv[]) {
   gtk_init(&argc, &argv);
   initCurl();
 
-  GtkWidget *window; //*playerName, *playerRating, *playerClock;
+  GtkWidget *window;
   display_output_t *display_output;
 
   state_vars_t *states = (state_vars_t *)malloc(sizeof(state_vars_t));
