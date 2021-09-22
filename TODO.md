@@ -9,6 +9,8 @@
 * Fix escape button exit seg fault
 * fix bad svgs and cairo panic errors
 
+* occurence of "Slice: assertion failed: sinfo->n_allocated > 0" error observed once
+
 ## enhancements:
 
 * pop effect

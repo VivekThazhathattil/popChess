@@ -65,7 +65,7 @@ void GdkRGBA_to_colors_t(const GdkRGBA *src, colors_t* dest){
   dest->r = src->red;
   dest->g = src->green;
   dest->b = src->blue;
-  dest->a = src->blue;
+  dest->a = src->alpha;
   return;
 }
 
@@ -535,8 +535,8 @@ static GtkWidget *showColorWindow(gpointer *data){
   exitButton = gtk_button_new_with_label("Exit");
   g_signal_connect(GTK_BUTTON(exitButton), "clicked",
                    G_CALLBACK(exit_color_window_callback), colorWindow);
-  populateHContainer(&(dat->lightSquareColor), hContainer,"Light square color");
-  populateHContainer(&(dat->darkSquareColor), hContainer, "Dark square color");
+  populateHContainer(&(dat->lightSquareColor), hContainer,"Dark square color");
+  populateHContainer(&(dat->darkSquareColor), hContainer, "Light square color");
   gtk_box_pack_start(GTK_BOX(hContainer), exitButton, 1,1,0);
   gtk_container_add(GTK_CONTAINER(colorWindow), hContainer);
   gtk_widget_show_all(colorWindow);
@@ -558,13 +558,17 @@ static gboolean color_button_pressed_callback(GtkWidget *ColorButton, gpointer *
   GdkRGBA *srcColor = (GdkRGBA *)malloc(sizeof(GdkRGBA));
   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(ColorButton), srcColor);
   GdkRGBA_to_colors_t(srcColor, destColor);
+  gtk_widget_queue_draw(board_info->widget);
   //gdk_rgba_free(srcColor);
   return FALSE;
 }
 
 static gboolean exit_color_window_callback(GtkWidget *ExitButton, gpointer *window){
   IGNORE(ExitButton);
-  gtk_widget_destroy(GTK_WIDGET(window));
+  if(window != NULL){
+    g_object_unref(window);
+    gtk_widget_destroy(GTK_WIDGET(window));
+  }
   return FALSE;
 }
 
