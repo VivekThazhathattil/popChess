@@ -88,7 +88,7 @@ char *getLastJSON(char *feed) {
 }
 
 fen_data_t *getFenFromJson(char *feed) {
-  fen_data_t *fen_data;
+  fen_data_t *fen_data = (fen_data_t *)malloc(sizeof(fen_data_t));
   // printf("%s Feed is %s\n", feed);
 
   struct json_value_s *root = json_parse(feed, strlen(feed));
@@ -102,7 +102,6 @@ fen_data_t *getFenFromJson(char *feed) {
       a = navigateTo("d", a);
       struct json_value_s *a_value = a->value;
       a = json_value_as_object(a_value)->start;
-      fen_data = (fen_data_t *)malloc(sizeof(fen_data_t));
 
       a = navigateTo("fen", a);
       fen_data->fen =
@@ -132,7 +131,6 @@ fen_data_t *getFenFromJson(char *feed) {
       if (a == NULL) {
         printf("Error: Cannot find PGN in JSON. Skipping");
       } else {
-        fen_data = (fen_data_t *)malloc(sizeof(fen_data_t));
         fen_data->fen =
             (char *)malloc(sizeof(char) * (strlen(getValueString(a)) + 1));
         strcpy(fen_data->fen, getValueString(a));

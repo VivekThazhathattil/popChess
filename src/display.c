@@ -170,7 +170,11 @@ display_output_t *displayControl(state_vars_t *states) {
 }
 
 void updateLabelTexts(GtkWidget *label, char *text) {
-  gtk_label_set_text(GTK_LABEL(label), (text == NULL) ? "-" : text);
+  gchar *markupString = g_markup_printf_escaped("<span font_desc = \"Sans  Bold 11\"> %s </span>",text);
+  gtk_label_set_markup(GTK_LABEL(label), (text) == NULL
+                                          ? "..."
+                                          : markupString);
+  g_free(markupString);
 }
 void makePlayerDetails(GtkWidget *playerDetails, GtkWidget *name,
                        GtkWidget *rating, GtkWidget *time, char *nameStr,

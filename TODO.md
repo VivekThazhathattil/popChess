@@ -19,7 +19,7 @@
 * Make the clock actually look like a clock
 * select bullet, blitz, rapid, and other modes
 * select a user to follow
-* broadcasts (olympiad)
+* broadcasts
 * sounds
 * increase the font size of all text labels
 * ~~button to flip board~~
