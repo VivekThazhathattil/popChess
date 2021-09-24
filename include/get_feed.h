@@ -15,8 +15,8 @@
  *    along with popChess.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GET_FEED_H_
-#define GET_FEED_H_
+#ifndef __GET_FEED_H__
+#define __GET_FEED_H__
 
 #include <curl/curl.h>
 #include <pthread.h>

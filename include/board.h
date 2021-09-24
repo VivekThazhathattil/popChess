@@ -15,8 +15,8 @@
  *    along with popChess.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef __BOARD_H__
+#define __BOARD_H__
 
 #include "utils.h"
 #include <gtk/gtk.h>

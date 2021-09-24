@@ -15,8 +15,8 @@
  *    along with popChess.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DISPLAY_H_
-#define DISPLAY_H_
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
 
 #include <board.h>
 #include <gtk/gtk.h>

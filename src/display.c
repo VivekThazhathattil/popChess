@@ -31,6 +31,11 @@ static gboolean select_pieces_callback(GtkWidget *, gpointer *);
 static gboolean select_color_callback(GtkWidget *, gpointer *);
 static gboolean color_button_pressed_callback(GtkWidget *, gpointer *);
 static gboolean exit_color_window_callback(GtkWidget *, gpointer *);
+static gboolean copy_FEN_callback(GtkWidget *, gpointer *);
+static gboolean copy_image_callback(GtkWidget *, gpointer *);
+static gboolean show_undefended_pieces_callback(GtkWidget *, gpointer *);
+static gboolean show_evaluation_bar_callback(GtkWidget *, gpointer *);
+static gboolean select_mode_callback(GtkWidget *, gpointer *);
 
 // bad practice: remove duplicates
 void updateAllLabelTexts(lichess_data_t *liDat) {
@@ -148,9 +153,9 @@ display_output_t *displayControl(state_vars_t *states) {
                     NULL, NULL);
   makePlayerDetails(blackPlayerDetails, bNameWidget, bRatingWidget, bTimeWidget,
                     NULL, NULL);
-  gtk_box_pack_end(GTK_BOX(canvas), whitePlayerDetails, 1, 1, 0);
+  gtk_box_pack_end(GTK_BOX(canvas), whitePlayerDetails, 1, 1, 10);
   gtk_box_pack_end(GTK_BOX(canvas), board, 1, 1, 0);
-  gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 0);
+  gtk_box_pack_end(GTK_BOX(canvas), blackPlayerDetails, 1, 1, 10);
 
   makeControlButtonsArray(buttonArray, &buttons, board_info);
   gtk_box_pack_start(GTK_BOX(outVBox), canvas, 1, 1, 0);
@@ -222,12 +227,22 @@ void makeControlButtonsArray(GtkWidget *array, button_array_t *btns,
 
   g_signal_connect(GTK_BUTTON(btns->flipBoard), "clicked",
                    G_CALLBACK(flip_board_callback), data);
-  g_signal_connect(GTK_BUTTON(btns->showCoords), "clicked",
-                   G_CALLBACK(coord_callback), data);
-  g_signal_connect(GTK_BUTTON(btns->selectPieces), "clicked",
-                   G_CALLBACK(select_pieces_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->selectMode), "clicked",
+                   G_CALLBACK(select_mode_callback), data);
   g_signal_connect(GTK_BUTTON(btns->selectColor), "clicked",
                    G_CALLBACK(select_color_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->selectPieces), "clicked",
+                   G_CALLBACK(select_pieces_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->copyFEN), "clicked",
+                   G_CALLBACK(copy_FEN_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->copyImage), "clicked",
+                   G_CALLBACK(copy_image_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->showUndefendedPieces), "clicked",
+                   G_CALLBACK(show_undefended_pieces_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->showEvaluationBar), "clicked",
+                   G_CALLBACK(show_evaluation_bar_callback), data);
+  g_signal_connect(GTK_BUTTON(btns->showCoords), "clicked",
+                   G_CALLBACK(coord_callback), data);
 
   gtk_box_pack_start(GTK_BOX(array), btns->flipBoard, 1, 0, 0);
   gtk_box_pack_start(GTK_BOX(array), btns->selectMode, 1, 0, 0);
@@ -573,6 +588,32 @@ static gboolean exit_color_window_callback(GtkWidget *ExitButton, gpointer *wind
     g_object_unref(window);
     gtk_widget_destroy(GTK_WIDGET(window));
   }
+  return FALSE;
+}
+
+static gboolean copy_FEN_callback(GtkWidget *CopyFENButton, gpointer *data){
+  IGNORE(data);
+  IGNORE(CopyFENButton);
+  return FALSE;
+}
+static gboolean copy_image_callback(GtkWidget *CopyImageButton, gpointer *data){
+  IGNORE(data);
+  IGNORE(CopyImageButton);
+  return FALSE;
+}
+static gboolean show_undefended_pieces_callback(GtkWidget *UndefPiecesButton, gpointer *data){
+  IGNORE(data);
+  IGNORE(UndefPiecesButton);
+  return FALSE;
+}
+static gboolean show_evaluation_bar_callback(GtkWidget *EvalBarButton, gpointer *data){
+  IGNORE(data);
+  IGNORE(EvalBarButton);
+  return FALSE;
+}
+static gboolean select_mode_callback(GtkWidget *SelectModeButton, gpointer *data){
+  IGNORE(data);
+  IGNORE(SelectModeButton);
   return FALSE;
 }
 

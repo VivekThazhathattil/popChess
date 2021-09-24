@@ -15,8 +15,8 @@
  *    along with popChess.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CONTROL_H_
-#define CONTROL_H_
+#ifndef __CONTROL_H__
+#define __CONTROL_H__
 
 #include <gtk/gtk.h>
 #include <stdio.h>

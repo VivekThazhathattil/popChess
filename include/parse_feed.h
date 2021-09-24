@@ -15,8 +15,8 @@
  *    along with popChess.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSE_FEED_H_
-#define PARSE_FEED_H_
+#ifndef __PARSE_FEED_H__
+#define __PARSE_FEED_H__
 
 #include <assert.h>
 #include <json.h>
