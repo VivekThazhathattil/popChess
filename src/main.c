@@ -37,7 +37,7 @@ static void activate(GtkApplication *app, gpointer userData) {
 int main(int argc, char **argv) {
   GtkApplication *app;
   int status;
-  app = gtk_application_new("com.github.popChess", G_APPLICATION_FLAGS_NONE);
+  app = gtk_application_new("com.github.popChess", G_APPLICATION_DEFAULT_FLAGS);
   activate_data_t *ad = (activate_data_t *)malloc(sizeof(activate_data_t));
   ad->argc = argc;
   ad->argv = argv;

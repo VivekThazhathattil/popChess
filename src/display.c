@@ -325,28 +325,23 @@ static void drawPieces(cairo_t *cr, piece_info_t *pieces, uint isFlipped) {
   double ss = DEFAULT_SQUARE_SIZE;
   double scale = 0.0048 * DEFAULT_BOARD_SIZE / ss;
   RsvgHandle *piece_image;
-  RsvgDimensionData dimensions;
-  double x_factor, y_factor, scale_factor;
+  RsvgRectangle viewport;
   for (uint i = 0; i < pieces[0].totalCount; ++i) {
-    if (isFlipped)
-      cairo_translate(cr, (7 - pieces[i].x) * ss, (pieces[i].y) * ss);
-    else
-      cairo_translate(cr, pieces[i].x * ss, (7 - pieces[i].y) * ss);
     cairo_scale(cr, scale, scale);
     cairo_scale(cr, 1 / scale, 1 / scale);
     piece_image = piece_images[(pieces[i].color == 'b' ? 0 : 1)]
                               [getPieceType(pieces[i].type)];
-    rsvg_handle_get_dimensions(piece_image, &dimensions);
-    x_factor = (double)ss / dimensions.width;
-    y_factor = (double)ss / dimensions.height;
-    scale_factor = MIN(x_factor, y_factor);
-    cairo_scale(cr, scale_factor, scale_factor);
-    rsvg_handle_render_cairo(piece_image, cr);
-    cairo_scale(cr, 1 / scale_factor, 1 / scale_factor);
-    if (isFlipped)
-      cairo_translate(cr, -(7 - pieces[i].x) * ss, -(pieces[i].y) * ss);
-    else
-      cairo_translate(cr, -pieces[i].x * ss, -(7 - pieces[i].y) * ss);
+    if(isFlipped){
+      viewport.x = (7 - pieces[i].x)*ss;
+      viewport.y = (pieces[i].y)*ss;
+    }
+    else{
+      viewport.x = (pieces[i].x)*ss;
+      viewport.y = (7 - pieces[i].y)*ss;
+    }
+    viewport.width = ss;
+    viewport.height = ss;
+    rsvg_handle_render_document(piece_image, cr, &viewport, NULL);
   }
 }
 

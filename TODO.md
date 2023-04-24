@@ -34,6 +34,8 @@
 * Integrate a chess-engine to evaluate the current position
 * Create bar display similar to lichess and chess.com
 * make a status icon in the system tray which when hovered shows the ongoing game in a tiny window
+* Make option to save favorite players and show who is live (green circle); if live, stream their game
+* Input custom game-id and stream it
 
 ## IMPORTANT:
 * Write unit tests

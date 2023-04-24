@@ -23,6 +23,7 @@ void initCurl() {
   int j = 1;
   pthread_create(&id, NULL, curlHandler, &j);
 }
+
 void *curlHandler(void *optArg) {
   IGNORE(optArg);
   CURL *curl_handle;
@@ -38,7 +39,7 @@ void *curlHandler(void *optArg) {
   if (curl_handle) {
     curl_easy_setopt(curl_handle, CURLOPT_URL, website_addr);
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
@@ -56,7 +57,7 @@ void *curlHandler(void *optArg) {
   return NULL;
 }
 
-size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb,
+size_t writeMemoryCallback(void *contents, size_t size, size_t nmemb,
                            void *userp) {
   size_t realsize = size * nmemb;
   struct mem_struct_t *mem = (struct mem_struct_t *)userp;
